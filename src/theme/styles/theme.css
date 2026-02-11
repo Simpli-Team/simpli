@@ -1,0 +1,73 @@
+@theme {
+  /* Primary colors */
+  --simpli-primary-50: #eef2ff;
+  --simpli-primary-100: #e0e7ff;
+  --simpli-primary-200: #c7d2fe;
+  --simpli-primary-300: #a5b4fc;
+  --simpli-primary-400: #818cf8;
+  --simpli-primary-500: #6366f1;
+  --simpli-primary-600: #4f46e5;
+  --simpli-primary-700: #4338ca;
+  --simpli-primary-800: #3730a3;
+  --simpli-primary-900: #312e81;
+
+  /* Gray scale */
+  --simpli-gray-50: #f9fafb;
+  --simpli-gray-100: #f3f4f6;
+  --simpli-gray-200: #e5e7eb;
+  --simpli-gray-300: #d1d5db;
+  --simpli-gray-400: #9ca3af;
+  --simpli-gray-500: #6b7280;
+  --simpli-gray-600: #4b5563;
+  --simpli-gray-700: #374151;
+  --simpli-gray-800: #1f2937;
+  --simpli-gray-900: #111827;
+
+  /* Semantic colors */
+  --simpli-bg: #ffffff;
+  --simpli-bg-secondary: #f9fafb;
+  --simpli-bg-tertiary: #f3f4f6;
+  --simpli-text: #111827;
+  --simpli-text-secondary: #4b5563;
+  --simpli-text-tertiary: #6b7280;
+  --simpli-border: #e5e7eb;
+  --simpli-border-strong: #d1d5db;
+
+  /* Status colors */
+  --simpli-info: #3b82f6;
+  --simpli-success: #10b981;
+  --simpli-warning: #f59e0b;
+  --simpli-danger: #ef4444;
+
+  /* Typography */
+  --simpli-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --simpli-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Spacing */
+  --simpli-sidebar-width: 280px;
+  --simpli-toc-width: 240px;
+  --simpli-navbar-height: 64px;
+
+  /* Shadows */
+  --simpli-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --simpli-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --simpli-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --simpli-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Transitions */
+  --simpli-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --simpli-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --simpli-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode overrides */
+.dark {
+  --simpli-bg: #0f172a;
+  --simpli-bg-secondary: #1e293b;
+  --simpli-bg-tertiary: #334155;
+  --simpli-text: #f1f5f9;
+  --simpli-text-secondary: #cbd5e1;
+  --simpli-text-tertiary: #94a3b8;
+  --simpli-border: #334155;
+  --simpli-border-strong: #475569;
+}

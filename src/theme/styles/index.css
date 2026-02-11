@@ -1,0 +1,64 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./prose.css";
+@import "./animations.css";
+
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: var(--simpli-font-sans);
+    background: var(--simpli-bg);
+    color: var(--simpli-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Selection color */
+  ::selection {
+    background: var(--simpli-primary-200);
+    color: var(--simpli-primary-900);
+  }
+  
+  .dark ::selection {
+    background: var(--simpli-primary-700);
+    color: var(--simpli-primary-100);
+  }
+  
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--simpli-bg-secondary);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--simpli-gray-400);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--simpli-gray-500);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--simpli-gray-600);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--simpli-gray-500);
+  }
+}
+
+/* Focus visible styles */
+@layer utilities {
+  .focus-ring {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-bg;
+  }
+}

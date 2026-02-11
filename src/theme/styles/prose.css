@@ -1,0 +1,124 @@
+/* Prose styles for MDX content */
+.simpli-prose {
+  color: var(--simpli-text);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.simpli-prose h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.simpli-prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--simpli-border);
+}
+
+.simpli-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.simpli-prose h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.simpli-prose p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.simpli-prose a {
+  color: var(--simpli-primary-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.simpli-prose a:hover {
+  color: var(--simpli-primary-700);
+}
+
+.simpli-prose ul,
+.simpli-prose ol {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.simpli-prose li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.simpli-prose code {
+  font-family: var(--simpli-font-mono);
+  font-size: 0.875em;
+  background: var(--simpli-bg-tertiary);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+}
+
+.simpli-prose pre {
+  background: var(--simpli-bg-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.simpli-prose pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.simpli-prose blockquote {
+  border-left: 4px solid var(--simpli-primary-500);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--simpli-text-secondary);
+  font-style: italic;
+}
+
+.simpli-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.simpli-prose th,
+.simpli-prose td {
+  border: 1px solid var(--simpli-border);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.simpli-prose th {
+  background: var(--simpli-bg-secondary);
+  font-weight: 600;
+}
+
+.simpli-prose hr {
+  border: none;
+  border-top: 1px solid var(--simpli-border);
+  margin: 2rem 0;
+}
+
+.simpli-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
