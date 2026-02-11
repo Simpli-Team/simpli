@@ -84,8 +84,11 @@ export function Layout({
             </article>
 
             {/* TOC - Right Sidebar */}
-            {showTOC && tocHeadings.length > 0 && !isMobile && (
-              <aside className="hidden xl:block flex-shrink-0" style={{ width: 'var(--toc-width)' }}>
+            {showTOC && tocHeadings.length > 0 && (
+              <aside 
+                className="hidden lg:block flex-shrink-0" 
+                style={{ width: 'var(--toc-width)' }}
+              >
                 <TOC headings={tocHeadings} />
               </aside>
             )}

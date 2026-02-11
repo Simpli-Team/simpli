@@ -1,37 +1,41 @@
 @theme {
-  /* Primary colors */
-  --simpli-primary-50: #eef2ff;
-  --simpli-primary-100: #e0e7ff;
-  --simpli-primary-200: #c7d2fe;
-  --simpli-primary-300: #a5b4fc;
-  --simpli-primary-400: #818cf8;
-  --simpli-primary-500: #6366f1;
-  --simpli-primary-600: #4f46e5;
-  --simpli-primary-700: #4338ca;
-  --simpli-primary-800: #3730a3;
-  --simpli-primary-900: #312e81;
+  /* Primary colors - Purple theme matching logo */
+  --simpli-primary-50: #faf5ff;
+  --simpli-primary-100: #f3e8ff;
+  --simpli-primary-200: #e9d5ff;
+  --simpli-primary-300: #d8b4fe;
+  --simpli-primary-400: #c084fc;
+  --simpli-primary-500: #a855f7;
+  --simpli-primary-600: #9333ea;
+  --simpli-primary-700: #7e22ce;
+  --simpli-primary-800: #6b21a8;
+  --simpli-primary-900: #581c87;
 
-  /* Gray scale */
-  --simpli-gray-50: #f9fafb;
-  --simpli-gray-100: #f3f4f6;
-  --simpli-gray-200: #e5e7eb;
-  --simpli-gray-300: #d1d5db;
-  --simpli-gray-400: #9ca3af;
-  --simpli-gray-500: #6b7280;
-  --simpli-gray-600: #4b5563;
-  --simpli-gray-700: #374151;
-  --simpli-gray-800: #1f2937;
-  --simpli-gray-900: #111827;
+  /* Gray scale - Enhanced contrast */
+  --simpli-gray-50: #fafafa;
+  --simpli-gray-100: #f4f4f5;
+  --simpli-gray-200: #e4e4e7;
+  --simpli-gray-300: #d4d4d8;
+  --simpli-gray-400: #a1a1aa;
+  --simpli-gray-500: #71717a;
+  --simpli-gray-600: #52525b;
+  --simpli-gray-700: #3f3f46;
+  --simpli-gray-800: #27272a;
+  --simpli-gray-900: #18181b;
 
-  /* Semantic colors */
+  /* Semantic colors - Light mode */
   --simpli-bg: #ffffff;
-  --simpli-bg-secondary: #f9fafb;
-  --simpli-bg-tertiary: #f3f4f6;
-  --simpli-text: #111827;
-  --simpli-text-secondary: #4b5563;
-  --simpli-text-tertiary: #6b7280;
-  --simpli-border: #e5e7eb;
-  --simpli-border-strong: #d1d5db;
+  --simpli-bg-secondary: #fafafa;
+  --simpli-bg-tertiary: #f4f4f5;
+  --simpli-bg-elevated: #ffffff;
+  --simpli-text: #18181b;
+  --simpli-text-secondary: #52525b;
+  --simpli-text-tertiary: #71717a;
+  --simpli-text-muted: #a1a1aa;
+  --simpli-border: #e4e4e7;
+  --simpli-border-strong: #d4d4d8;
+  --simpli-accent: #a855f7;
+  --simpli-accent-hover: #9333ea;
 
   /* Status colors */
   --simpli-info: #3b82f6;
@@ -40,34 +44,64 @@
   --simpli-danger: #ef4444;
 
   /* Typography */
-  --simpli-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --simpli-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --simpli-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --simpli-font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 
   /* Spacing */
   --simpli-sidebar-width: 280px;
   --simpli-toc-width: 240px;
   --simpli-navbar-height: 64px;
+  --simpli-content-max-width: 1400px;
 
-  /* Shadows */
-  --simpli-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --simpli-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --simpli-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --simpli-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  /* Shadows - Enhanced depth */
+  --simpli-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --simpli-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06);
+  --simpli-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --simpli-shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  --simpli-shadow-lg: 0 10px 20px -3px rgb(0 0 0 / 0.12), 0 4px 8px -4px rgb(0 0 0 / 0.1);
+  --simpli-shadow-xl: 0 20px 30px -5px rgb(0 0 0 / 0.15), 0 8px 12px -6px rgb(0 0 0 / 0.12);
 
   /* Transitions */
   --simpli-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --simpli-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --simpli-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Border radius */
+  --simpli-radius-sm: 0.375rem;
+  --simpli-radius: 0.5rem;
+  --simpli-radius-md: 0.75rem;
+  --simpli-radius-lg: 1rem;
+  
+  /* Z-index layers */
+  --simpli-z-dropdown: 1000;
+  --simpli-z-sticky: 1020;
+  --simpli-z-fixed: 1030;
+  --simpli-z-modal-backdrop: 1040;
+  --simpli-z-modal: 1050;
+  --simpli-z-popover: 1060;
+  --simpli-z-tooltip: 1070;
 }
 
-/* Dark mode overrides */
+/* Dark mode overrides - Enhanced dark theme */
 .dark {
-  --simpli-bg: #0f172a;
-  --simpli-bg-secondary: #1e293b;
-  --simpli-bg-tertiary: #334155;
-  --simpli-text: #f1f5f9;
-  --simpli-text-secondary: #cbd5e1;
-  --simpli-text-tertiary: #94a3b8;
-  --simpli-border: #334155;
-  --simpli-border-strong: #475569;
+  --simpli-bg: #09090b;
+  --simpli-bg-secondary: #18181b;
+  --simpli-bg-tertiary: #27272a;
+  --simpli-bg-elevated: #18181b;
+  --simpli-text: #fafafa;
+  --simpli-text-secondary: #d4d4d8;
+  --simpli-text-tertiary: #a1a1aa;
+  --simpli-text-muted: #71717a;
+  --simpli-border: #27272a;
+  --simpli-border-strong: #3f3f46;
+  --simpli-accent: #c084fc;
+  --simpli-accent-hover: #d8b4fe;
+  
+  /* Enhanced shadows for dark mode */
+  --simpli-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --simpli-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4);
+  --simpli-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --simpli-shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --simpli-shadow-lg: 0 10px 20px -3px rgb(0 0 0 / 0.7), 0 4px 8px -4px rgb(0 0 0 / 0.6);
+  --simpli-shadow-xl: 0 20px 30px -5px rgb(0 0 0 / 0.8), 0 8px 12px -6px rgb(0 0 0 / 0.7);
 }

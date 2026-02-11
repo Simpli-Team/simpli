@@ -13,6 +13,10 @@ export default defineConfig({
   themeConfig: {
     navbar: {
       title: 'Simpli',
+      logo: {
+        src: '/logo.svg',
+        alt: 'Simpli Logo',
+      },
       items: [
         { label: 'Docs', to: '/docs', position: 'left' },
         { label: 'Blog', to: '/blog', position: 'left' },
@@ -30,6 +34,10 @@ export default defineConfig({
     },
     footer: {
       style: 'dark',
+      logo: {
+        src: '/logo.svg',
+        alt: 'Simpli Logo',
+      },
       copyright: `Copyright © ${new Date().getFullYear()} Simpli. Built with ❤️`,
     },
   },

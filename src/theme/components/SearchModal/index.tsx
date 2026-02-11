@@ -29,10 +29,28 @@ export function SearchModal() {
         e.preventDefault();
         setIsOpen(true);
       }
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape' && isOpen) {
+        e.preventDefault();
+        setIsOpen(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  // Handle search trigger button clicks
+  useEffect(() => {
+    const handleSearchTrigger = () => setIsOpen(true);
+    const searchTrigger = document.getElementById('search-trigger');
+    const mobileSearch = document.getElementById('mobile-search');
+    
+    searchTrigger?.addEventListener('click', handleSearchTrigger);
+    mobileSearch?.addEventListener('click', handleSearchTrigger);
+    
+    return () => {
+      searchTrigger?.removeEventListener('click', handleSearchTrigger);
+      mobileSearch?.removeEventListener('click', handleSearchTrigger);
+    };
   }, []);
 
   // Focus input when opened
@@ -40,9 +58,11 @@ export function SearchModal() {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
       setSelectedIndex(0);
+      document.body.style.overflow = 'hidden';
     } else {
       setQuery('');
       setResults([]);
+      document.body.style.overflow = '';
     }
   }, [isOpen]);
 
@@ -52,7 +72,8 @@ export function SearchModal() {
       const filtered = searchData.filter(
         item =>
           item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.excerpt.toLowerCase().includes(query.toLowerCase())
+          item.excerpt.toLowerCase().includes(query.toLowerCase()) ||
+          item.section.toLowerCase().includes(query.toLowerCase())
       );
       setResults(filtered);
       setSelectedIndex(0);
@@ -78,6 +99,10 @@ export function SearchModal() {
           setIsOpen(false);
         }
         break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        break;
     }
   }, [results, selectedIndex]);
 
@@ -94,12 +119,12 @@ export function SearchModal() {
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-2xl mx-4 overflow-hidden animate-scale-in"
+        className="relative w-full max-w-2xl mx-4 overflow-hidden"
         style={{
           background: 'var(--bg-elevated)',
-          borderRadius: 'var(--radius-xl)',
+          borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
+          boxShadow: 'var(--shadow-xl)',
         }}
       >
         {/* Search input */}
@@ -118,12 +143,12 @@ export function SearchModal() {
             className="flex-1 bg-transparent text-lg outline-none"
             style={{
               color: 'var(--text)',
-              fontFamily: 'var(--font-sans)',
             }}
           />
           <button
             onClick={() => setIsOpen(false)}
-            className="btn-ghost p-1.5 rounded-md hidden sm:flex"
+            className="btn-ghost p-1.5 rounded-md"
+            aria-label="Close search"
           >
             <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
           </button>
@@ -140,7 +165,7 @@ export function SearchModal() {
           {results.length === 0 && !query.trim() && (
             <div className="px-4 py-6">
               <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-2" style={{ color: 'var(--text-muted)' }}>
-                Recent
+                Quick Links
               </p>
               <div className="space-y-0.5">
                 {searchData.slice(0, 3).map((item) => (
@@ -151,7 +176,10 @@ export function SearchModal() {
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg hoverable"
                   >
                     <FileText className="w-4 h-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
-                    <span style={{ color: 'var(--text-secondary)' }}>{item.title}</span>
+                    <div className="flex-1">
+                      <div style={{ color: 'var(--text)' }}>{item.title}</div>
+                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{item.section}</div>
+                    </div>
                   </a>
                 ))}
               </div>
@@ -163,18 +191,23 @@ export function SearchModal() {
               key={result.id}
               href={result.path}
               onClick={() => setIsOpen(false)}
-              className="flex items-start gap-3 px-4 py-3 group transition-colors"
+              className="flex items-start gap-3 px-4 py-3 group transition-all"
               style={{
-                background: idx === selectedIndex ? 'var(--accent-soft)' : 'transparent',
-                borderBottom: '1px solid var(--border-subtle)',
+                background: idx === selectedIndex ? 'var(--bg-secondary)' : 'transparent',
               }}
             >
-              <FileText className="w-5 h-5 mt-0.5 shrink-0" style={{ color: 'var(--text-muted)' }} />
+              <FileText 
+                className="w-5 h-5 mt-0.5 shrink-0" 
+                style={{ color: idx === selectedIndex ? 'var(--accent)' : 'var(--text-muted)' }} 
+              />
               <div className="flex-1 min-w-0">
-                <div className="font-medium" style={{ color: idx === selectedIndex ? 'var(--accent)' : 'var(--text)' }}>
+                <div 
+                  className="font-medium" 
+                  style={{ color: idx === selectedIndex ? 'var(--accent)' : 'var(--text)' }}
+                >
                   {result.title}
                 </div>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
+                <p className="text-sm mt-0.5 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
                   {result.excerpt}
                 </p>
                 <span className="text-xs mt-1 inline-block" style={{ color: 'var(--text-muted)' }}>
@@ -191,22 +224,22 @@ export function SearchModal() {
 
         {/* Footer */}
         <div
-          className="hidden sm:flex items-center justify-between px-4 py-2.5 text-xs"
+          className="flex items-center justify-between px-4 py-2.5 text-xs"
           style={{
             borderTop: '1px solid var(--border)',
-            background: 'var(--bg-soft)',
+            background: 'var(--bg-secondary)',
             color: 'var(--text-muted)',
           }}
         >
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
+            <span className="hidden sm:flex items-center gap-1">
               <kbd
                 className="px-1.5 py-0.5 rounded text-[10px] font-mono"
                 style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
               >↑↓</kbd>
               <span>navigate</span>
             </span>
-            <span className="flex items-center gap-1">
+            <span className="hidden sm:flex items-center gap-1">
               <kbd
                 className="px-1.5 py-0.5 rounded text-[10px] font-mono"
                 style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}
@@ -221,7 +254,9 @@ export function SearchModal() {
               <span>close</span>
             </span>
           </div>
-          <span>{results.length} results</span>
+          {query.trim() && (
+            <span>{results.length} result{results.length !== 1 ? 's' : ''}</span>
+          )}
         </div>
       </div>
     </div>

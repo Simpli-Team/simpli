@@ -31,21 +31,30 @@ function applyThemeToDOM(isDark: boolean) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'system';
-    return (localStorage.getItem('simpli-theme') as Theme) || 'system';
-  });
+  const [mounted, setMounted] = useState(false);
+  const [theme, setThemeState] = useState<Theme>('system');
 
-  const resolved = resolveTheme(theme);
+  // Initialize theme from localStorage after mount
+  useEffect(() => {
+    const stored = localStorage.getItem('simpli-theme') as Theme;
+    if (stored && ['light', 'dark', 'system'].includes(stored)) {
+      setThemeState(stored);
+    }
+    setMounted(true);
+  }, []);
+
+  const resolved = useMemo(() => resolveTheme(theme), [theme]);
 
   // Apply theme to DOM whenever it changes
   useEffect(() => {
-    applyThemeToDOM(resolved === 'dark');
-  }, [resolved]);
+    if (mounted) {
+      applyThemeToDOM(resolved === 'dark');
+    }
+  }, [resolved, mounted]);
 
   // Listen for system theme changes
   useEffect(() => {
-    if (theme !== 'system') return;
+    if (theme !== 'system' || !mounted) return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
@@ -53,7 +62,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
     mediaQuery.addEventListener('change', handler);
     return () => mediaQuery.removeEventListener('change', handler);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -75,6 +84,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme,
     toggleTheme,
   }), [theme, resolved, setTheme, toggleTheme]);
+
+  // Prevent flash of unstyled content
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <ThemeContext.Provider value={value}>
