@@ -21,33 +21,21 @@ export interface SidebarProps {
 
 export function Sidebar({ items, isOpen = true, mobileOpen = false, onClose }: SidebarProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(items
-      .filter(i => i.category)
-      .map(i => i.category!)
+    new Set(
+      items
+        .filter(i => i.type === 'category')
+        .map(i => i.id)
     )
   );
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = (categoryId: string) => {
     setExpandedCategories(prev => {
       const next = new Set(prev);
-      if (next.has(category)) next.delete(category);
-      else next.add(category);
+      if (next.has(categoryId)) next.delete(categoryId);
+      else next.add(categoryId);
       return next;
     });
   };
-
-  // Group items by category
-  const grouped = items.reduce((acc, item) => {
-    const category = item.category;
-    if (category) {
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(item);
-    } else {
-      if (!acc._root) acc._root = [];
-      acc._root.push(item);
-    }
-    return acc;
-  }, {} as Record<string, SidebarNavItem[]>);
 
   const sidebarContent = (
     <>
@@ -73,42 +61,15 @@ export function Sidebar({ items, isOpen = true, mobileOpen = false, onClose }: S
         className="p-3 space-y-0.5 overflow-y-auto"
         style={{ maxHeight: 'calc(100vh - var(--navbar-height) - 1rem)' }}
       >
-        {/* Root items */}
-        {grouped._root?.map((item) => (
-          <SidebarItemLink key={item.id} item={item} onNavigate={onClose} />
+        {items.map((item) => (
+          <SidebarItem
+            key={item.id}
+            item={item}
+            onNavigate={onClose}
+            expandedCategories={expandedCategories}
+            toggleCategory={toggleCategory}
+          />
         ))}
-
-        {/* Categories */}
-        {Object.entries(grouped)
-          .filter(([key]) => key !== '_root')
-          .map(([category, categoryItems]) => (
-            <div key={category} className="mt-4 first:mt-0">
-              <button
-                onClick={() => toggleCategory(category)}
-                className="w-full flex items-center gap-2 px-2.5 py-2 text-xs font-semibold uppercase tracking-wider rounded-md hoverable"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                <ChevronRight
-                  className="w-3.5 h-3.5 transition-transform"
-                  style={{
-                    transform: expandedCategories.has(category) ? 'rotate(90deg)' : 'rotate(0deg)',
-                  }}
-                />
-                {category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' ')}
-              </button>
-
-              {expandedCategories.has(category) && (
-                <div
-                  className="mt-0.5 ml-3 pl-3 space-y-0.5 animate-fade-in"
-                  style={{ borderLeft: '1px solid var(--border)' }}
-                >
-                  {categoryItems.map((item) => (
-                    <SidebarItemLink key={item.id} item={item} onNavigate={onClose} />
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
       </nav>
     </>
   );
@@ -149,16 +110,74 @@ export function Sidebar({ items, isOpen = true, mobileOpen = false, onClose }: S
   );
 }
 
-function SidebarItemLink({ item, onNavigate }: { item: SidebarNavItem; onNavigate?: () => void }) {
+function SidebarItem({
+  item,
+  onNavigate,
+  expandedCategories,
+  toggleCategory,
+  depth = 0,
+}: {
+  item: SidebarNavItem;
+  onNavigate?: () => void;
+  expandedCategories: Set<string>;
+  toggleCategory: (id: string) => void;
+  depth?: number;
+}) {
   const location = useLocation();
 
   if (item.type === 'category') {
+    const isExpanded = expandedCategories.has(item.id);
+    const hasLink = !!item.href;
+
     return (
-      <div
-        className="font-medium px-2.5 py-1.5 text-xs uppercase tracking-wider"
-        style={{ color: 'var(--text-muted)' }}
-      >
-        {item.label}
+      <div className="mt-2 first:mt-0">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => toggleCategory(item.id)}
+            className="flex items-center gap-2 px-2.5 py-2 text-sm font-medium rounded-md hoverable flex-1"
+            style={{ 
+              color: 'var(--text)',
+              paddingLeft: `${depth * 0.75 + 0.625}rem`,
+            }}
+          >
+            <ChevronRight
+              className="w-3.5 h-3.5 shrink-0 transition-transform"
+              style={{
+                transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+              }}
+            />
+            <span className="truncate">{item.label}</span>
+          </button>
+          {hasLink && (
+            <Link
+              to={item.href!}
+              onClick={onNavigate}
+              className="p-2 rounded-md hoverable"
+              title={`Go to ${item.label}`}
+              preventScrollReset
+            >
+              <FileText className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} />
+            </Link>
+          )}
+        </div>
+
+        {isExpanded && item.items && item.items.length > 0 && (
+          <div
+            className="mt-0.5 ml-3 pl-3 space-y-0.5 animate-fade-in"
+            style={{ borderLeft: '1px solid var(--border)' }}
+          >
+            {item.items.map((childItem) => (
+              <SidebarItem
+                key={childItem.id}
+                item={childItem}
+                onNavigate={onNavigate}
+                expandedCategories={expandedCategories}
+                toggleCategory={toggleCategory}
+                depth={depth + 1}
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -171,6 +190,8 @@ function SidebarItemLink({ item, onNavigate }: { item: SidebarNavItem; onNavigat
       to={href}
       onClick={onNavigate}
       className={`sidebar-item flex items-center gap-2.5 px-2.5 py-2 text-sm ${isActive ? 'active' : ''}`}
+      style={{ paddingLeft: `${depth * 0.75 + 0.625}rem` }}
+      preventScrollReset
     >
       <FileText
         className="w-4 h-4 shrink-0"

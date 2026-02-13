@@ -31,6 +31,7 @@ import type { SimpliConfig, SidebarItem } from '../config/types';
 import { createMDXTransform } from './mdxTransform';
 import { loadAllContent } from '../content/ContentLoader';
 import { buildSearchData } from '../content/SearchIndex';
+import { generateSidebar } from '../content/SidebarGenerator';
 
 export interface SimpliVitePluginOptions {
     /** Project root directory. Defaults to process.cwd() */
@@ -289,8 +290,9 @@ function buildVirtualContext(
     routes: GeneratedRoute[],
     contextRootDir: string,
 ): VirtualModuleContext {
-    // Build sidebar from config or auto-generate
-    const sidebar = buildSidebar(config, routes);
+    // Build sidebar using SidebarGenerator
+    const docsDir = path.resolve(contextRootDir, config.docsDir || 'docs');
+    const sidebar = generateSidebar(docsDir, config.sidebars);
 
     // Build search index with content from MDX files
     const searchIndex = buildSearchIndex(routes, contextRootDir);
@@ -319,63 +321,6 @@ function buildVirtualContext(
         searchIndex,
         metadata,
     };
-}
-
-// -----------------------------------------------------------------------------
-// Sidebar builder
-// -----------------------------------------------------------------------------
-
-function buildSidebar(
-    config: SimpliConfig,
-    routes: GeneratedRoute[],
-): Record<string, SidebarItem[]> {
-    // If user defined sidebars in config, use those
-    if (config.sidebars && Object.keys(config.sidebars).length > 0) {
-        return config.sidebars;
-    }
-
-    // Auto-generate sidebar from routes
-    const docRoutes = routes.filter((r) => r.path.startsWith('/docs'));
-    if (docRoutes.length === 0) return {};
-
-    const items: SidebarItem[] = [];
-    const categories = new Map<string, SidebarItem[]>();
-
-    for (const route of docRoutes) {
-        const segments = route.path.replace(/^\/docs\/?/, '').split('/');
-
-        if (segments.length === 1 && segments[0] !== '') {
-            // Top-level doc
-            items.push({
-                type: 'doc',
-                id: segments[0],
-                label: pathToTitle(segments[0]),
-            });
-        } else if (segments.length > 1) {
-            // Nested doc - add to category
-            const categoryName = segments[0];
-            if (!categories.has(categoryName)) {
-                categories.set(categoryName, []);
-            }
-            categories.get(categoryName)!.push({
-                type: 'doc',
-                id: segments.join('/'),
-                label: pathToTitle(segments[segments.length - 1]),
-            });
-        }
-    }
-
-    // Add categories
-    for (const [name, categoryItems] of categories) {
-        items.push({
-            type: 'category',
-            label: pathToTitle(name),
-            collapsed: false,
-            items: categoryItems,
-        });
-    }
-
-    return { docs: items };
 }
 
 // -----------------------------------------------------------------------------

@@ -59,48 +59,53 @@ export function DocPage() {
 
   // Build sidebar items from virtual module
   useEffect(() => {
-    const sidebar = sidebarData as Record<string, Array<{ type?: string; id?: string; label?: string; href?: string; items?: unknown[] }>>;
+    const sidebar = sidebarData as Record<string, Array<{ type?: string; id?: string; label?: string; href?: string; items?: unknown[]; link?: { type: string; id?: string } }>>;
     const docsItems = sidebar.docs || [];
 
-    const items: SidebarNavItem[] = [];
+    function processItems(itemsList: unknown[]): SidebarNavItem[] {
+      const result: SidebarNavItem[] = [];
 
-    function processItems(itemsList: unknown[], parentCategory?: string): void {
       for (const item of itemsList) {
         if (typeof item === 'string') {
           // Simple doc ID
           const meta = getDocMetadata(item);
-          items.push({
+          result.push({
             type: 'doc',
             id: item,
             label: meta.title || item,
             href: `/docs/${item}`,
           });
         } else if (item && typeof item === 'object') {
-          const typedItem = item as { type?: string; id?: string; label?: string; href?: string; items?: unknown[] };
+          const typedItem = item as { type?: string; id?: string; label?: string; href?: string; items?: unknown[]; link?: { type: string; id?: string } };
 
           if (typedItem.type === 'category' && typedItem.items) {
-            // Category
-            items.push({
+            // Category with nested items
+            const categoryItem: SidebarNavItem = {
               type: 'category',
               id: typedItem.id || typedItem.label || 'category',
               label: typedItem.label || 'Category',
-              items: [],
+              items: processItems(typedItem.items), // Recursively process nested items
               collapsed: false,
-            });
-            processItems(typedItem.items, typedItem.id);
+            };
+
+            // Add link if category has an index page
+            if (typedItem.link?.type === 'doc' && typedItem.link.id) {
+              categoryItem.href = `/docs/${typedItem.link.id}`;
+            }
+
+            result.push(categoryItem);
           } else if (typedItem.type === 'doc' || typedItem.id) {
             // Doc item
             const meta = getDocMetadata(typedItem.id || '');
-            items.push({
+            result.push({
               type: 'doc',
               id: typedItem.id || '',
               label: typedItem.label || meta.title || typedItem.id || '',
               href: `/docs/${typedItem.id}`,
-              category: parentCategory,
             });
           } else if (typedItem.type === 'link' && typedItem.href) {
             // Link item
-            items.push({
+            result.push({
               type: 'link',
               id: typedItem.href,
               label: typedItem.label || typedItem.href,
@@ -109,9 +114,11 @@ export function DocPage() {
           }
         }
       }
+
+      return result;
     }
 
-    processItems(docsItems);
+    const items = processItems(docsItems);
     setSidebarItems(items);
   }, []);
 
