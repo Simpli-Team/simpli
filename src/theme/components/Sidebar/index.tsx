@@ -7,8 +7,9 @@ export interface SidebarNavItem {
   label: string;
   category?: string | null;
   href?: string;
-  type?: 'doc' | 'category';
+  type?: 'doc' | 'category' | 'link';
   items?: SidebarNavItem[];
+  collapsed?: boolean;
 }
 
 export interface SidebarProps {

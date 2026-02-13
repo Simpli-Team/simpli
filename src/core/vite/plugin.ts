@@ -29,6 +29,8 @@ import {
 } from './virtualModules';
 import type { SimpliConfig, SidebarItem } from '../config/types';
 import { createMDXTransform } from './mdxTransform';
+import { loadAllContent } from '../content/ContentLoader';
+import { buildSearchData } from '../content/SearchIndex';
 
 export interface SimpliVitePluginOptions {
     /** Project root directory. Defaults to process.cwd() */
@@ -120,7 +122,7 @@ export function simpliPlugin(options: SimpliVitePluginOptions = {}): Plugin {
             pluginManager.applyRouteHooks(routeConfigs);
 
             // Build virtual module context
-            vmContext = buildVirtualContext(config, routes);
+            vmContext = buildVirtualContext(config, routes, rootDir);
         },
 
         // -----------------------------------------------------------------------
@@ -159,7 +161,6 @@ export function simpliPlugin(options: SimpliVitePluginOptions = {}): Plugin {
             // Watch content directories for changes
             const watchDirs = [
                 config.docsDir,
-                config.blogDir,
             ].filter((dir) => dir && fs.existsSync(dir as string)) as string[];
 
             for (const dir of watchDirs) {
@@ -227,7 +228,7 @@ export function simpliPlugin(options: SimpliVitePluginOptions = {}): Plugin {
 
             // Regenerate routes
             routes = scanContentRoutes(config, rootDir);
-            vmContext = buildVirtualContext(config, routes);
+            vmContext = buildVirtualContext(config, routes, rootDir);
 
             // Invalidate all virtual modules
             for (const vmId of VIRTUAL_MODULE_IDS) {
@@ -265,17 +266,6 @@ function scanContentRoutes(
         allRoutes.push(...docRoutes);
     }
 
-    // Scan blog directory
-    const blogDir = config.blogDir ?? path.resolve(rootDir, 'blog');
-    if (fs.existsSync(blogDir)) {
-        const blogRoutes = generateRoutes({
-            basePath: '/blog',
-            contentDir: blogDir,
-            extensions: ['.mdx', '.md'],
-        });
-        allRoutes.push(...blogRoutes);
-    }
-
     // Scan pages directory
     const pagesDir = config.pagesDir ?? path.resolve(rootDir, 'src/pages');
     if (fs.existsSync(pagesDir)) {
@@ -297,20 +287,13 @@ function scanContentRoutes(
 function buildVirtualContext(
     config: SimpliConfig,
     routes: GeneratedRoute[],
+    contextRootDir: string,
 ): VirtualModuleContext {
     // Build sidebar from config or auto-generate
     const sidebar = buildSidebar(config, routes);
 
-    // Build search index
-    const searchIndex = routes.map((route) => ({
-        id: route.path,
-        title: (route.metadata?.title as string) ?? pathToTitle(route.path),
-        content: '', // Will be populated during MDX processing
-        path: route.path,
-        headings: [],
-        tags: (route.metadata?.tags ?? []) as string[],
-        section: route.path.split('/')[1] ?? '',
-    }));
+    // Build search index with content from MDX files
+    const searchIndex = buildSearchIndex(routes, contextRootDir);
 
     // Build metadata map
     const metadata: Record<string, {
@@ -404,4 +387,55 @@ function pathToTitle(pathSegment: string): string {
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, (c) => c.toUpperCase())
         .trim() || 'Home';
+}
+
+// -----------------------------------------------------------------------------
+// Search Index Builder
+// -----------------------------------------------------------------------------
+
+function buildSearchIndex(
+    routes: GeneratedRoute[],
+    rootDir: string,
+): Array<{
+    id: string;
+    title: string;
+    content: string;
+    path: string;
+    headings: string[];
+    tags: string[];
+    section: string;
+}> {
+    try {
+        const docsDir = path.resolve(rootDir, 'docs');
+
+        // Load all content to get plain text
+        const content = loadAllContent(docsDir, '');
+
+        // Build search data from processed content
+        const searchDocs = buildSearchData([
+            ...content.docs.map(d => ({
+                id: d.metadata.id,
+                title: d.metadata.title,
+                plainText: d.plainText,
+                path: d.metadata.permalink,
+                headings: d.headings,
+                tags: d.metadata.tags || [],
+                section: 'docs',
+            })),
+        ]);
+
+        return searchDocs;
+    } catch (error) {
+        console.warn('[simpli] Failed to build search index:', error);
+        // Fallback to empty content
+        return routes.map((route) => ({
+            id: route.path,
+            title: (route.metadata?.title as string) ?? pathToTitle(route.path),
+            content: '',
+            path: route.path,
+            headings: [],
+            tags: (route.metadata?.tags ?? []) as string[],
+            section: route.path.split('/')[1] ?? '',
+        }));
+    }
 }

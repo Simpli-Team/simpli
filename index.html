@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
 
 <head>
   <meta charset="UTF-8" />
@@ -8,12 +8,31 @@
   <title>Simpli Documentation</title>
   <meta name="description" content="Lightweight, blazing-fast documentation framework" />
 
-  <!-- Google Fonts: Inter + JetBrains Mono -->
+  <!-- Google Fonts: Noto Sans Thai + JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans+Thai:wght@100..900&display=swap"
     rel="stylesheet" />
+
+  <!-- Dynamic Font Loader -->
+  <script>
+    (function () {
+      try {
+        // Load custom font from localStorage if set
+        var customFont = localStorage.getItem('simpli-font');
+        if (customFont) {
+          var fontData = JSON.parse(customFont);
+          if (fontData.url) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = fontData.url;
+            document.head.appendChild(link);
+          }
+        }
+      } catch (e) { }
+    })();
+  </script>
 
   <!-- Prevent theme flash -->
   <script>

@@ -9,8 +9,10 @@ export default defineConfig({
   tagline: 'Lightweight, blazing-fast documentation framework',
   url: 'https://simpli-docs.vercel.app',
   baseUrl: '/',
-
   themeConfig: {
+    font: {
+      family: 'prompt', // 'noto-sans-thai', 'sarabun', 'kanit', 'inter'
+    },
     navbar: {
       title: 'Simpli',
       logo: {
@@ -18,8 +20,6 @@ export default defineConfig({
         alt: 'Simpli Logo',
       },
       items: [
-        { label: 'Docs', to: '/docs', position: 'left' },
-        { label: 'Blog', to: '/blog', position: 'left' },
         { type: 'search', position: 'right' },
         { type: 'themeToggle', position: 'right' },
       ],

@@ -1,6 +1,6 @@
-import { Info, Lightbulb, AlertTriangle, AlertOctagon } from 'lucide-react';
+import { Info, Lightbulb, AlertTriangle, AlertOctagon, CheckCircle, AlertCircle } from 'lucide-react';
 
-export type AdmonitionType = 'note' | 'tip' | 'info' | 'warning' | 'danger' | 'caution';
+export type AdmonitionType = 'note' | 'tip' | 'info' | 'warning' | 'danger' | 'caution' | 'success' | 'important';
 
 export interface AdmonitionProps {
   type?: AdmonitionType;
@@ -56,6 +56,20 @@ const typeConfig: Record<AdmonitionType, {
     bgVar: 'var(--danger-soft)',
     borderVar: 'var(--danger-border)',
     defaultTitle: 'Danger',
+  },
+  success: {
+    icon: CheckCircle,
+    colorVar: 'var(--success)',
+    bgVar: 'var(--success-soft)',
+    borderVar: 'var(--success-border)',
+    defaultTitle: 'Success',
+  },
+  important: {
+    icon: AlertCircle,
+    colorVar: 'var(--accent)',
+    bgVar: 'var(--accent-soft)',
+    borderVar: 'var(--accent-muted)',
+    defaultTitle: 'Important',
   },
 };
 

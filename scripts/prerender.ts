@@ -10,12 +10,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import matter from 'gray-matter';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const distDir = path.resolve(rootDir, 'dist');
 const docsDir = path.resolve(rootDir, 'docs');
-const blogDir = path.resolve(rootDir, 'blog');
 
 // Route definition
 interface Route {
@@ -89,16 +89,30 @@ function fileToRoute(filePath: string, contentDir: string, basePath: string): Ro
 }
 
 /**
+ * Extract frontmatter using gray-matter
+ */
+function extractFrontmatter(filePath: string): { title?: string; description?: string } {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const { data } = matter(content);
+    return {
+      title: data.title,
+      description: data.description,
+    };
+  } catch {
+    return {};
+  }
+}
+
+/**
  * Generate routes from content directories
  */
 function generateRoutes(): Route[] {
   const routes: Route[] = [
     // Root route
     { path: '/', title: 'Simpli Documentation', description: 'Lightweight, blazing-fast documentation framework' },
-    // Docs index
+    // Docs index - redirect to intro
     { path: '/docs', title: 'Documentation', description: 'Explore Simpli documentation' },
-    // Blog index
-    { path: '/blog', title: 'Blog', description: 'Latest updates and articles' },
   ];
 
   // Discover docs routes
@@ -106,30 +120,11 @@ function generateRoutes(): Route[] {
     const docFiles = discoverContentFiles(docsDir);
     for (const file of docFiles) {
       const route = fileToRoute(file, docsDir, '/docs');
-      // Extract title from frontmatter if possible
-      const content = fs.readFileSync(file, 'utf-8');
-      const titleMatch = content.match(/^title:\s*["']?(.+?)["']?$/m);
-      const descMatch = content.match(/^description:\s*["']?(.+?)["']?$/m);
+      const frontmatter = extractFrontmatter(file);
       routes.push({
         ...route,
-        title: titleMatch?.[1] || route.path,
-        description: descMatch?.[1],
-      });
-    }
-  }
-
-  // Discover blog routes
-  if (fs.existsSync(blogDir)) {
-    const blogFiles = discoverContentFiles(blogDir);
-    for (const file of blogFiles) {
-      const route = fileToRoute(file, blogDir, '/blog');
-      const content = fs.readFileSync(file, 'utf-8');
-      const titleMatch = content.match(/^title:\s*["']?(.+?)["']?$/m);
-      const descMatch = content.match(/^description:\s*["']?(.+?)["']?$/m);
-      routes.push({
-        ...route,
-        title: titleMatch?.[1] || route.path,
-        description: descMatch?.[1],
+        title: frontmatter.title || route.path,
+        description: frontmatter.description,
       });
     }
   }
@@ -154,7 +149,6 @@ function generateHTML(template: string, route: Route): string {
   // Replace asset paths with relative paths
   let html = template
     .replace(/href="\/favicon\.svg"/g, `href="${prefix}favicon.svg"`)
-    .replace(/src="\/src\/main\.tsx"/g, `src="${prefix}assets/index-h7hqpxUC.js"`)
     // Add base tag for proper relative URL resolution
     .replace('<head>', `<head>\n  <base href="${route.path === '/' ? '/' : route.path + '/'}">`);
 
@@ -184,43 +178,12 @@ function writeRouteHTML(route: Route, html: string): void {
   // Write index.html
   const htmlPath = path.join(outputPath || distDir, 'index.html');
   fs.writeFileSync(htmlPath, html, 'utf-8');
-  
-  // Generated silently
-}
-
-/**
- * Get the actual JS entry file from dist/assets
- */
-function findEntryJS(): string | null {
-  const assetsDir = path.join(distDir, 'assets');
-  if (!fs.existsSync(assetsDir)) return null;
-  
-  const files = fs.readdirSync(assetsDir);
-  const entryFile = files.find(f => f.startsWith('index-') && f.endsWith('.js'));
-  return entryFile || null;
-}
-
-/**
- * Update template with correct asset paths
- */
-function updateTemplateWithAssets(template: string): string {
-  const entryJS = findEntryJS();
-  if (entryJS) {
-    // Replace the src path with the correct asset path
-    template = template.replace(
-      /src="\/src\/main\.tsx"/,
-      `src="/assets/${entryJS}"`
-    );
-  }
-  return template;
 }
 
 /**
  * Main prerender function
  */
 async function prerender(): Promise<void> {
-  // Silent mode - only show errors
-
   // Check dist exists
   if (!fs.existsSync(distDir)) {
     console.error('❌ dist/ directory not found. Run "npm run build" first.');
@@ -234,20 +197,16 @@ async function prerender(): Promise<void> {
     process.exit(1);
   }
 
-  let template = fs.readFileSync(templatePath, 'utf-8');
-  template = updateTemplateWithAssets(template);
+  const template = fs.readFileSync(templatePath, 'utf-8');
 
   // Generate routes
   const routes = generateRoutes();
-  // Generate routes silently
 
   // Generate HTML for each route
   for (const route of routes) {
     const html = generateHTML(template, route);
     writeRouteHTML(route, html);
   }
-
-  // SSG complete - silent
 }
 
 // Run prerender

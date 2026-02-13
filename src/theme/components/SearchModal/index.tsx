@@ -1,5 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, FileText, ArrowRight, X } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Search, FileText, ArrowRight, X, Hash } from 'lucide-react';
+import { SimpliSearchEngine, type SearchResult as EngineResult, type SearchDocument } from '../../../core/content/SearchIndex';
+import searchIndexData from 'virtual:simpli/search-index';
+import metadataData from 'virtual:simpli/metadata';
 
 export interface SearchResult {
   id: string;
@@ -9,18 +12,59 @@ export interface SearchResult {
   section: string;
 }
 
+// Transform virtual module data to SearchResult format
+function transformResults(results: EngineResult[]): SearchResult[] {
+  return results.map(r => ({
+    id: r.id,
+    title: r.title,
+    excerpt: r.excerpts?.[0]?.text || '',
+    path: r.path,
+    section: r.section,
+  }));
+}
+
 export function SearchModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchEngine = useMemo(() => new SimpliSearchEngine(), []);
 
-  const searchData: SearchResult[] = [
-    { id: '1', title: 'Introduction', excerpt: 'Welcome to Simpli documentation framework', path: '/docs/intro', section: 'Getting Started' },
-    { id: '2', title: 'Installation', excerpt: 'How to install Simpli using npm, yarn, or pnpm', path: '/docs/getting-started/installation', section: 'Getting Started' },
-    { id: '3', title: 'Configuration', excerpt: 'Learn how to configure your Simpli site', path: '/docs/configuration', section: 'Guide' },
-  ];
+  // Load search index and recent searches
+  useEffect(() => {
+    // Load search index
+    const data = searchIndexData as SearchDocument[];
+    if (data && Array.isArray(data)) {
+      searchEngine.load(data);
+    }
+
+    // Load recent searches from localStorage
+    try {
+      const saved = localStorage.getItem('simpli-recent-searches');
+      if (saved) {
+        setRecentSearches(JSON.parse(saved));
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [searchEngine]);
+
+  // Save recent searches
+  const saveRecentSearch = useCallback((q: string) => {
+    if (!q.trim()) return;
+    setRecentSearches(prev => {
+      const filtered = prev.filter(item => item !== q);
+      const updated = [q, ...filtered].slice(0, 5);
+      try {
+        localStorage.setItem('simpli-recent-searches', JSON.stringify(updated));
+      } catch {
+        // Ignore localStorage errors
+      }
+      return updated;
+    });
+  }, []);
 
   // Keyboard shortcut
   useEffect(() => {
@@ -69,18 +113,13 @@ export function SearchModal() {
   // Perform search
   useEffect(() => {
     if (query.trim()) {
-      const filtered = searchData.filter(
-        item =>
-          item.title.toLowerCase().includes(query.toLowerCase()) ||
-          item.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-          item.section.toLowerCase().includes(query.toLowerCase())
-      );
-      setResults(filtered);
+      const searchResults = searchEngine.search(query, 10);
+      setResults(transformResults(searchResults));
       setSelectedIndex(0);
     } else {
       setResults([]);
     }
-  }, [query]);
+  }, [query, searchEngine]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     switch (e.key) {
@@ -95,6 +134,7 @@ export function SearchModal() {
       case 'Enter':
         e.preventDefault();
         if (results[selectedIndex]) {
+          saveRecentSearch(query);
           window.location.href = results[selectedIndex].path;
           setIsOpen(false);
         }
@@ -104,7 +144,20 @@ export function SearchModal() {
         setIsOpen(false);
         break;
     }
-  }, [results, selectedIndex]);
+  }, [results, selectedIndex, query, saveRecentSearch]);
+
+  // Get quick links from metadata
+  const quickLinks = useMemo(() => {
+    const meta = metadataData as Record<string, { title?: string }>;
+    return Object.entries(meta)
+      .slice(0, 5)
+      .map(([path, data]) => ({
+        id: path,
+        title: data.title || path,
+        path,
+        section: path.split('/')[1] || 'docs',
+      }));
+  }, []);
 
   if (!isOpen) return null;
 
@@ -141,9 +194,7 @@ export function SearchModal() {
             onKeyDown={handleKeyDown}
             placeholder="Search documentation..."
             className="flex-1 bg-transparent text-lg outline-none"
-            style={{
-              color: 'var(--text)',
-            }}
+            style={{ color: 'var(--text)' }}
           />
           <button
             onClick={() => setIsOpen(false)}
@@ -156,19 +207,43 @@ export function SearchModal() {
 
         {/* Results */}
         <div className="max-h-[50vh] overflow-y-auto">
+          {/* No results */}
           {results.length === 0 && query.trim() && (
             <div className="px-4 py-12 text-center" style={{ color: 'var(--text-muted)' }}>
               <p>No results found for &quot;{query}&quot;</p>
             </div>
           )}
 
+          {/* Empty state - Recent searches + Quick links */}
           {results.length === 0 && !query.trim() && (
             <div className="px-4 py-6">
+              {/* Recent searches */}
+              {recentSearches.length > 0 && (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-2" style={{ color: 'var(--text-muted)' }}>
+                    Recent Searches
+                  </p>
+                  <div className="space-y-0.5 mb-6">
+                    {recentSearches.map((item, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setQuery(item)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hoverable text-left"
+                      >
+                        <Hash className="w-4 h-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
+                        <span style={{ color: 'var(--text)' }}>{item}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Quick links */}
               <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-2" style={{ color: 'var(--text-muted)' }}>
                 Quick Links
               </p>
               <div className="space-y-0.5">
-                {searchData.slice(0, 3).map((item) => (
+                {quickLinks.map((item) => (
                   <a
                     key={item.id}
                     href={item.path}
@@ -186,11 +261,15 @@ export function SearchModal() {
             </div>
           )}
 
+          {/* Search results */}
           {results.map((result, idx) => (
             <a
               key={result.id}
               href={result.path}
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                saveRecentSearch(query);
+                setIsOpen(false);
+              }}
               className="flex items-start gap-3 px-4 py-3 group transition-all"
               style={{
                 background: idx === selectedIndex ? 'var(--bg-secondary)' : 'transparent',

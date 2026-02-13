@@ -251,6 +251,40 @@ export interface MetaTag {
   content: string;
 }
 
+// ---------------------------------------------------------------------------
+// Font Configuration
+// ---------------------------------------------------------------------------
+
+export interface FontConfig {
+  /** 
+   * Font family for body text.
+   * - Use 'noto-sans-thai' for Thai support (default)
+   * - Use 'inter' for English-only
+   * - Use 'prompt' for Thai with modern look
+   * - Use 'sarabun' for Thai with traditional look
+   * - Or provide a custom Google Font URL
+   */
+  family?: 'noto-sans-thai' | 'inter' | 'prompt' | 'sarabun' | 'kanit' | string;
+  
+  /** Custom Google Font URL (e.g., 'https://fonts.googleapis.com/css2?family=Roboto&display=swap') */
+  googleFontUrl?: string;
+  
+  /** Custom font family name for CSS (e.g., 'Roboto') */
+  customFontFamily?: string;
+  
+  /** 
+   * Font weights to load.
+   * Default: [400, 500, 600, 700]
+   */
+  weights?: number[];
+  
+  /** 
+   * Enable Thai glyph optimizations.
+   * Default: true
+   */
+  thaiOptimized?: boolean;
+}
+
 export interface ThemeConfig {
   navbar?: NavbarConfig;
   sidebar?: SidebarOptions;
@@ -262,6 +296,7 @@ export interface ThemeConfig {
   announcementBar?: AnnouncementBarConfig;
   metadata?: MetaTag[];
   customCss?: Record<string, string>;
+  font?: FontConfig;
 }
 
 // ---------------------------------------------------------------------------

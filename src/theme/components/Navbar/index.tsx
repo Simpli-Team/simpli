@@ -1,6 +1,7 @@
 import { Menu, Search, Sun, Moon, Monitor, Github } from 'lucide-react';
 import { useTheme } from '../ThemeProvider';
 import { useState, useEffect } from 'react';
+import configData from 'virtual:simpli/config';
 
 export interface NavbarProps {
   onMenuToggle: () => void;
@@ -10,6 +11,23 @@ export interface NavbarProps {
 export function Navbar({ onMenuToggle }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
+  const [navbarConfig, setNavbarConfig] = useState<{
+    title?: string;
+    logo?: { src?: string; alt?: string };
+    items?: Array<{
+      label?: string;
+      to?: string;
+      href?: string;
+      type?: string;
+      position?: 'left' | 'right';
+    }>;
+  }>({});
+
+  // Load config from virtual module
+  useEffect(() => {
+    const config = configData as { themeConfig?: { navbar?: typeof navbarConfig } };
+    setNavbarConfig(config.themeConfig?.navbar || {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -18,6 +36,17 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
   }, []);
 
   const ThemeIcon = theme === 'system' ? Monitor : theme === 'dark' ? Moon : Sun;
+  const logoSrc = navbarConfig.logo?.src || '/logo.svg';
+  const logoAlt = navbarConfig.logo?.alt || navbarConfig.title || 'Logo';
+  const siteTitle = navbarConfig.title || 'Simpli';
+
+  // Filter navbar items
+  const leftItems = navbarConfig.items?.filter(item => 
+    !item.position || item.position === 'left'
+  ) || [];
+  const rightItems = navbarConfig.items?.filter(item => 
+    item.position === 'right'
+  ) || [];
 
   return (
     <header
@@ -29,7 +58,7 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
       }}
     >
       <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 max-w-[1800px] mx-auto">
-        {/* Left: Menu + Logo */}
+        {/* Left: Menu + Logo + Nav Items */}
         <div className="flex items-center gap-3">
           <button
             id="sidebar-toggle"
@@ -42,17 +71,31 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
 
           <a href="/" className="flex items-center gap-2.5 group">
             <img 
-              src="/logo.svg" 
-              alt="Simpli Logo" 
+              src={logoSrc}
+              alt={logoAlt}
               className="w-8 h-8 transition-transform group-hover:scale-105"
             />
             <span
               className="text-xl font-bold tracking-tight hidden sm:block"
               style={{ color: 'var(--text)' }}
             >
-              Simpli
+              {siteTitle}
             </span>
           </a>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-1 ml-4">
+            {leftItems.filter(item => item.type !== 'search' && item.type !== 'themeToggle').map((item, idx) => (
+              <a
+                key={idx}
+                href={item.to || item.href || '/'}
+                className="px-3 py-2 text-sm font-medium rounded-lg hoverable"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
         </div>
 
         {/* Center: Search */}
@@ -79,15 +122,17 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Right: Actions */}
         <div className="flex items-center gap-1">
           {/* Theme Toggle */}
-          <button
-            id="theme-toggle"
-            onClick={toggleTheme}
-            className="btn-ghost p-2.5 rounded-lg flex items-center gap-2"
-            aria-label={`Theme: ${theme}`}
-            title={`Theme: ${theme} (click to cycle)`}
-          >
-            <ThemeIcon className="w-[18px] h-[18px]" style={{ color: 'var(--text-secondary)' }} />
-          </button>
+          {rightItems.some(item => item.type === 'themeToggle') && (
+            <button
+              id="theme-toggle"
+              onClick={toggleTheme}
+              className="btn-ghost p-2.5 rounded-lg flex items-center gap-2"
+              aria-label={`Theme: ${theme}`}
+              title={`Theme: ${theme} (click to cycle)`}
+            >
+              <ThemeIcon className="w-[18px] h-[18px]" style={{ color: 'var(--text-secondary)' }} />
+            </button>
+          )}
 
           {/* Mobile Search */}
           <button

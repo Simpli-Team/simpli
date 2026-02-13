@@ -24,5 +24,5 @@
       "virtual:simpli/*": ["src/types/virtual-modules.d.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/**/*.d.ts"]
 }

@@ -60,6 +60,10 @@ const defaultThemeConfig: Required<ThemeConfig> = {
     announcementBar: undefined as unknown as Required<ThemeConfig>['announcementBar'],
     metadata: [],
     customCss: {},
+    font: {
+        family: 'noto-sans-thai',
+        thaiOptimized: true,
+    },
 };
 
 export const DEFAULT_CONFIG: Required<SimpliConfig> = {

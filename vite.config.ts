@@ -4,19 +4,25 @@ import tailwindcss from '@tailwindcss/vite';
 import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
+import remarkDirective from 'remark-directive';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import { simpliPlugin } from './src/core/vite/plugin';
+import { admonitionRemarkPlugin } from './src/core/vite/remarkAdmonition';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    simpliPlugin(),
     {
       enforce: 'pre',
       ...mdx({
         providerImportSource: '@mdx-js/react',
         remarkPlugins: [
-          remarkFrontmatter, // Strip frontmatter from rendered output
-          remarkGfm,         // GitHub Flavored Markdown
+          remarkFrontmatter,    // Strip frontmatter from rendered output
+          remarkGfm,            // GitHub Flavored Markdown
+          remarkDirective,      // Support ::: directive syntax
+          admonitionRemarkPlugin, // Transform :::tip, :::warning, etc to components
         ],
         rehypePlugins: [
           rehypeSlug,
