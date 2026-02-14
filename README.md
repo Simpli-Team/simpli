@@ -42,14 +42,6 @@ cd my-docs
 npm run dev
 ```
 
-### Manual Installation
-
-If you prefer to set it up manually:
-
-```bash
-npm install simpli-framework react react-dom react-router-dom
-```
-
 ---
 
 ## 📁 Project Structure
@@ -246,11 +238,14 @@ Since MDX supports React, you can use standard `<img>` tags for more control (st
 
 ## 📝 Writing Content
 
-Simpli uses **MDX**, which allows you to use React components directly within your Markdown files.
+Simpli fully supports both **Standard Markdown (`.md`)** and **MDX (`.mdx`)**.
+
+- **Markdown (`.md`)**: Use for standard documentation. Simple, clean, and portable.
+- **MDX (`.mdx`)**: Use when you need interactivity. Allows you to import and use React components directly within your content.
 
 ### Frontmatter
 
-Each `.mdx` file can include frontmatter to define metadata:
+Each `.md` or `.mdx` file can include frontmatter to define metadata:
 
 ```mdx
 ---
