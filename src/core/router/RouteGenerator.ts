@@ -1,7 +1,7 @@
 // ============================================================================
 // Simpli Framework - Route Generator
 // ============================================================================
-// Automatically generates routes from the file system (docs/, blog/, pages/).
+// Automatically generates routes from the file system (docs/, pages/).
 // Converts file paths to URL routes following conventions.
 //
 // Convention:

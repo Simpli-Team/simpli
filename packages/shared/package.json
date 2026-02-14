@@ -1,0 +1,51 @@
+{
+  "name": "@simpli/shared",
+  "version": "0.1.0",
+  "description": "Shared utilities for Simpli Framework packages",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./logger": {
+      "types": "./dist/logger.d.ts",
+      "import": "./dist/logger.js"
+    },
+    "./validation": {
+      "types": "./dist/validation.d.ts",
+      "import": "./dist/validation.js"
+    },
+    "./files": {
+      "types": "./dist/files.d.ts",
+      "import": "./dist/files.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "simpli",
+    "shared",
+    "utilities"
+  ],
+  "author": "Simpli Team",
+  "license": "MIT",
+  "dependencies": {
+    "kolorist": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "typescript": "~5.9.3"
+  }
+}

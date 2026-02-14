@@ -1,4 +1,4 @@
-import type { SimpliPluginInstance, DocMetadata } from '../../core/config/types';
+import type { SimpliPluginInstance, DocMetadata } from '../../core/config/types.js';
 
 interface SearchDoc {
   id: string;
@@ -17,12 +17,9 @@ interface ContentDoc {
   headings?: { text: string }[];
 }
 
-
 export interface SearchLocalPluginOptions {
   /** Index docs content */
   indexDocs?: boolean;
-  /** Index blog content */
-  indexBlog?: boolean;
   /** Index pages */
   indexPages?: boolean;
   /** Max search results */
@@ -34,7 +31,6 @@ export interface SearchLocalPluginOptions {
 export function searchLocalPlugin(options: SearchLocalPluginOptions = {}): SimpliPluginInstance {
   const {
     indexDocs = true,
-    indexBlog = true,
     indexPages = false,
     maxResults = 10,
     highlightSearchTerms = true,
@@ -44,7 +40,6 @@ export function searchLocalPlugin(options: SearchLocalPluginOptions = {}): Simpl
     name: '@simpli/plugin-search-local',
 
     configLoaded(config) {
-      // Enable search in theme config
       if (!config.themeConfig?.search) {
         if (!config.themeConfig) config.themeConfig = {};
         config.themeConfig.search = {
@@ -52,7 +47,6 @@ export function searchLocalPlugin(options: SearchLocalPluginOptions = {}): Simpl
           provider: 'local',
           local: {
             indexDocs,
-            indexBlog,
             indexPages,
             highlightSearchTerms,
             maxResults,
@@ -65,8 +59,7 @@ export function searchLocalPlugin(options: SearchLocalPluginOptions = {}): Simpl
     async contentLoaded({ content, createData }) {
       console.log('[search-local] Building search index...');
       
-      // Build search index from content
-      const searchDocs = [];
+      const searchDocs: SearchDoc[] = [];
       
       if (indexDocs && content.docs) {
         const docs = content.docs as ContentDoc[];
@@ -81,22 +74,7 @@ export function searchLocalPlugin(options: SearchLocalPluginOptions = {}): Simpl
         }));
         searchDocs.push(...mappedDocs);
       }
-      
-      if (indexBlog && content.blog) {
-        const posts = content.blog as ContentDoc[];
-        const mappedPosts: SearchDoc[] = posts.map((post) => ({
-          id: post.id,
-          title: post.metadata?.title ?? '',
-          content: post.plainText ?? '',
-          path: post.metadata?.permalink ?? '',
-          headings: (post.headings ?? []).map((h) => h.text),
-          tags: post.metadata?.tags || [],
-          section: 'blog',
-        }));
-        searchDocs.push(...mappedPosts);
-      }
 
-      // This data will be available via virtual:simpli/search-index
       await createData('search-index.json', JSON.stringify(searchDocs));
     },
   };

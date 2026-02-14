@@ -1,15 +1,15 @@
 // ============================================================================
-// Simpli Framework - Build Module Public API
+// Simpli Framework - Build & SEO Public API
 // ============================================================================
 
 export {
-    generateSitemap,
-    generateRobotsTxt,
-    generateMetaTags,
-    generateJsonLd,
-    writeSeoFiles,
-} from './seo';
-export type { PageMetaTags } from './seo';
+  generateSitemap,
+  generateRobotsTxt,
+  generateMetaTags,
+  generateJsonLd,
+  writeSeoFiles,
+} from './seo.js';
 
-export { ContentCache } from './ContentCache';
-export type { CacheEntry, CacheManifest } from './ContentCache';
+export type { PageMetaTags, JsonLdData } from './seo.js';
+
+export { ContentCache } from './ContentCache.js';

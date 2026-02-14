@@ -1,0 +1,37 @@
+{
+  "name": "simpli-cli",
+  "version": "0.1.0",
+  "description": "CLI for Simpli Framework - Documentation sites made simple",
+  "type": "module",
+  "bin": {
+    "simpli": "./bin/simpli.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "simpli",
+    "documentation",
+    "framework",
+    "cli",
+    "react",
+    "vite"
+  ],
+  "author": "Simpli Team",
+  "license": "MIT",
+  "dependencies": {
+    "@simpli/shared": "^0.1.0",
+    "cac": "^6.7.14"
+  },
+  "peerDependencies": {
+    "vite": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simpli-framework/simpli.git",
+    "directory": "packages/simpli-cli"
+  }
+}

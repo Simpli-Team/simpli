@@ -41,11 +41,11 @@ export function Footer() {
               Docs
             </a>
             <a
-              href="/blog"
+              href="/docs/api"
               className="transition-colors hover:text-accent"
               style={{ color: 'var(--text-secondary)' }}
             >
-              Blog
+              API
             </a>
             <a
               href="https://github.com"

@@ -63,7 +63,7 @@ export function simpliPlugin(options: SimpliVitePluginOptions = {}): Plugin {
     void _server;
 
     return {
-        name: 'simpli-framework',
+        name: 'simpli-docs',
         enforce: 'pre', // Run before other plugins
 
         // -----------------------------------------------------------------------
@@ -354,7 +354,7 @@ function buildSearchIndex(
         const docsDir = path.resolve(rootDir, 'docs');
 
         // Load all content to get plain text
-        const content = loadAllContent(docsDir, '');
+        const content = loadAllContent(docsDir);
 
         // Build search data from processed content
         const searchDocs = buildSearchData([

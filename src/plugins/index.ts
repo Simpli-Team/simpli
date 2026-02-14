@@ -1,13 +1,11 @@
-// Content plugins
-export { contentDocsPlugin } from './content-docs';
-export { contentBlogPlugin } from './content-blog';
+// ============================================================================
+// Simpli Framework - Built-in Plugins
+// ============================================================================
 
-// Feature plugins
-export { searchLocalPlugin } from './search-local';
-export { sitemapPlugin } from './sitemap';
+export { contentDocsPlugin } from './content-docs/index.js';
+export { searchLocalPlugin } from './search-local/index.js';
+export { sitemapPlugin } from './sitemap/index.js';
 
-// Re-export types
-export type { ContentDocsPluginOptions } from './content-docs';
-export type { ContentBlogPluginOptions } from './content-blog';
-export type { SearchLocalPluginOptions } from './search-local';
-export type { SitemapPluginOptions } from './sitemap';
+export type { ContentDocsPluginOptions } from './content-docs/index.js';
+export type { SearchLocalPluginOptions } from './search-local/index.js';
+export type { SitemapPluginOptions } from './sitemap/index.js';

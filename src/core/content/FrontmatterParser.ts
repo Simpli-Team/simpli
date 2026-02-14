@@ -37,15 +37,6 @@ export interface DocumentFrontmatter {
         date: string;
         author?: string;
     };
-    // Blog-specific
-    date?: string;
-    authors?: Array<{
-        name: string;
-        title?: string;
-        url?: string;
-        imageUrl?: string;
-    }>;
-    reading_time?: number;
     // Allow custom fields
     [key: string]: unknown;
 }

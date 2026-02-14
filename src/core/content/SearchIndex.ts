@@ -25,7 +25,7 @@ export interface SearchDocument {
     headings: string[];
     /** Tags for filtering */
     tags: string[];
-    /** Parent section (e.g. "docs", "blog") */
+    /** Parent section (e.g. "docs") */
     section: string;
     /** Section anchor IDs for deep linking */
     anchors?: string[];

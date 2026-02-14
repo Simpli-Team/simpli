@@ -2,7 +2,7 @@
 // Simpli Framework - Plugin Manager
 // ============================================================================
 // Manages the full lifecycle of plugins: registration, initialization,
-// hook wiring, and orderly shutdown. Each built-in feature (docs, blog,
+// hook wiring, and orderly shutdown. Each built-in feature (docs,
 // search) is implemented as a plugin using this system.
 //
 // Lifecycle:

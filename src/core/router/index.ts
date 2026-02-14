@@ -2,11 +2,11 @@
 // Simpli Framework - Router Public API
 // ============================================================================
 
-export { RadixRouter } from './RadixRouter';
-export type { RouteMatch } from './RadixRouter';
+export { RadixRouter } from './RadixRouter.js';
+export type { RouteMatch } from './RadixRouter.js';
 export {
-    generateRoutes,
-    toRouteConfigs,
-    serializeRoutes,
-} from './RouteGenerator';
-export type { GeneratedRoute, RouteGeneratorOptions } from './RouteGenerator';
+  generateRoutes,
+  toRouteConfigs,
+  serializeRoutes,
+} from './RouteGenerator.js';
+export type { GeneratedRoute, RouteGeneratorOptions } from './RouteGenerator.js';

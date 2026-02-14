@@ -1,36 +1,27 @@
 // ============================================================================
-// Simpli Framework - Content Module Public API
+// Simpli Framework - Content Pipeline Public API
 // ============================================================================
 
 export {
-    parseFrontmatter,
-    frontmatterToMetadata,
-    extractHeadings,
-    stripMarkdown,
-} from './FrontmatterParser';
-export type { ParsedContent, DocumentFrontmatter } from './FrontmatterParser';
+  discoverContentFiles,
+  processDocFile,
+  loadAllContent,
+} from './ContentLoader.js';
+
+export type {
+  ProcessedDoc,
+  ContentCollection,
+} from './ContentLoader.js';
+
+export { SimpliSearchEngine, buildSearchData } from './SearchIndex.js';
+export type { SearchDocument, SearchResult } from './SearchIndex.js';
+
+export { generateSidebar } from './SidebarGenerator.js';
 
 export {
-    discoverContentFiles,
-    processDocFile,
-    processBlogFile,
-    loadAllContent,
-} from './ContentLoader';
-export type {
-    ContentCollection,
-    ProcessedDoc,
-    ProcessedBlogPost,
-} from './ContentLoader';
+  parseFrontmatter,
+  frontmatterToMetadata,
+} from './FrontmatterParser.js';
 
-export {
-    buildSearchData,
-    serializeSearchIndex,
-    SimpliSearchEngine,
-} from './SearchIndex';
-export type {
-    SearchDocument,
-    SearchResult,
-    SearchExcerpt,
-} from './SearchIndex';
-
-export { generateSidebar } from './SidebarGenerator';
+// Re-export types from config/types
+export type { SidebarItem, SidebarCategoryItem } from '../config/types.js';

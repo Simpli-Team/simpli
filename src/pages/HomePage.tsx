@@ -144,11 +144,11 @@ function HomeContent() {
               Docs
             </a>
             <a
-              href="/blog"
+              href="/docs/api"
               className="text-sm font-medium transition-colors hover:text-accent"
               style={{ color: 'var(--text-secondary)' }}
             >
-              Blog
+              API
             </a>
           </nav>
 
@@ -559,7 +559,7 @@ function HomeContent() {
                 Resources
               </h4>
               <ul className="space-y-3 text-sm">
-                {['API Reference', 'Examples', 'Blog', 'Community'].map((item) => (
+                {['API Reference', 'Examples', 'Guide', 'Community'].map((item) => (
                   <li key={item}>
                     <a
                       href="/docs"

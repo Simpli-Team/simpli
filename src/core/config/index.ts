@@ -2,7 +2,6 @@
 // Simpli Framework - Config Module Public API
 // ============================================================================
 
-// Types
 export type {
   SimpliConfig,
   SimpliUserConfig,
@@ -22,15 +21,19 @@ export type {
   BuildConfig,
   PluginConfig,
   DocMetadata,
-  BlogPostMetadata,
   RouteConfig,
   SimpliPluginInstance,
   ContentLoadedArgs,
   PostBuildArgs,
-} from './types';
+} from './types.js';
 
-// Config loading
-export { loadConfig, serializeConfig, discoverConfigFile } from './loader';
+export { 
+  loadConfig, 
+  loadConfigSync,
+  serializeConfig, 
+  discoverConfigFile,
+  clearConfigCache,
+  getConfigMeta,
+} from './loader.js';
 
-// Defaults
-export { DEFAULT_CONFIG, mergeWithDefaults } from './defaults';
+export { DEFAULT_CONFIG, mergeWithDefaults } from './defaults.js';

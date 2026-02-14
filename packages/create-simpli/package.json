@@ -1,0 +1,37 @@
+{
+  "name": "create-simpli",
+  "version": "0.1.0",
+  "description": "Create Simpli documentation sites with one command",
+  "type": "module",
+  "bin": {
+    "create-simpli": "./bin/create-simpli.js"
+  },
+  "files": [
+    "bin",
+    "template"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "simpli",
+    "documentation",
+    "framework",
+    "react",
+    "vite",
+    "mdx",
+    "create",
+    "scaffold"
+  ],
+  "author": "Simpli Team",
+  "license": "MIT",
+  "dependencies": {
+    "@simpli/shared": "^0.1.0",
+    "prompts": "^2.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simpli-framework/simpli.git",
+    "directory": "packages/create-simpli"
+  }
+}

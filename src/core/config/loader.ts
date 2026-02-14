@@ -1,145 +1,194 @@
 // ============================================================================
-// Simpli Framework - Config Loader
-// ============================================================================
-// Responsible for discovering, loading, and validating simpli.config.ts
-// Used by the Vite plugin at build time to provide config as virtual module.
+// Simpli Framework - Config Loader (Production Level)
 // ============================================================================
 
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import fs from 'node:fs';
-import { mergeWithDefaults } from './defaults';
-import type { SimpliConfig } from './types';
+import { createRequire } from 'node:module';
+import { mergeWithDefaults } from './defaults.js';
+import { ConfigError } from '../errors/index.js';
+import { configValidator } from '../validators/config.js';
+import type { SimpliConfig, SimpliUserConfig } from './types.js';
 
-/**
- * Discover the config file path from project root.
- * Searches for: simpli.config.ts, simpli.config.js, simpli.config.mjs
- */
+const require = createRequire(import.meta.url);
+
+const CONFIG_FILES = [
+  'simpli.config.ts',
+  'simpli.config.js',
+  'simpli.config.mjs',
+  'simpli.config.mts',
+  'simpli.config.cjs',
+] as const;
+
+const configCache = new Map<string, { config: SimpliConfig; mtime: number }>();
+
 export function discoverConfigFile(rootDir: string): string | null {
-    const candidates = [
-        'simpli.config.ts',
-        'simpli.config.js',
-        'simpli.config.mjs',
-        'simpli.config.mts',
-    ];
-
-    for (const candidate of candidates) {
-        const fullPath = path.resolve(rootDir, candidate);
-        if (fs.existsSync(fullPath)) {
-            return fullPath;
-        }
+  for (const candidate of CONFIG_FILES) {
+    const fullPath = path.resolve(rootDir, candidate);
+    if (fs.existsSync(fullPath)) {
+      return fullPath;
     }
-
-    return null;
+  }
+  return null;
 }
 
-/**
- * Load and validate the Simpli config file.
- * Returns a fully merged config with defaults applied.
- */
+export function hasConfigChanged(configPath: string): boolean {
+  const cached = configCache.get(configPath);
+  if (!cached) return true;
+  
+  try {
+    const stats = fs.statSync(configPath);
+    return stats.mtimeMs > cached.mtime;
+  } catch {
+    return true;
+  }
+}
+
+export function clearConfigCache(): void {
+  configCache.clear();
+}
+
 export async function loadConfig(rootDir: string): Promise<SimpliConfig> {
-    const configPath = discoverConfigFile(rootDir);
+  const configPath = discoverConfigFile(rootDir);
 
-    if (!configPath) {
-        // No config file found - use all defaults with just a title
-        console.warn(
-            '[simpli] No simpli.config.ts found. Using default configuration.',
-        );
-        return mergeWithDefaults({ title: 'Simpli Documentation' });
+  if (!configPath) {
+    console.warn('[simpli] No simpli.config.ts found. Using default configuration.');
+    return mergeWithDefaults({ title: 'Simpli Documentation' });
+  }
+
+  if (!hasConfigChanged(configPath)) {
+    const cached = configCache.get(configPath);
+    if (cached) {
+      return cached.config;
     }
+  }
 
-    try {
-        // For TypeScript files, Vite handles ts->js transform.
-        // When running standalone (CLI), we need to use dynamic import.
-        const fileUrl = pathToFileURL(configPath).href;
-        const module = await import(/* @vite-ignore */ fileUrl);
-        const userConfig: Partial<SimpliConfig> = module.default ?? module;
+  try {
+    const fileUrl = pathToFileURL(configPath).href + `?t=${Date.now()}`;
+    const module = await import(/* @vite-ignore */ fileUrl);
+    const userConfig: SimpliUserConfig = module.default ?? module;
 
-        // Validate required fields
-        validateConfig(userConfig, configPath);
-
-        // Merge with defaults
-        const mergedConfig = mergeWithDefaults(userConfig);
-
-        // Resolve relative paths
-        return resolveConfigPaths(mergedConfig, rootDir);
-    } catch (error) {
-        throw new Error(
-            `[simpli] Failed to load config from ${configPath}:\n${error instanceof Error ? error.message : String(error)}`,
-        );
-    }
-}
-
-/**
- * Validate that minimum required fields are present.
- */
-function validateConfig(
-    config: Partial<SimpliConfig>,
-    filePath: string,
-): void {
-    if (!config.title || typeof config.title !== 'string') {
-        throw new Error(
-            `[simpli] Config at ${filePath} must specify a "title" (string).`,
-        );
-    }
-
-    if (config.url && !isValidUrl(config.url)) {
-        throw new Error(
-            `[simpli] Config "url" must be a valid URL. Got: "${config.url}"`,
-        );
-    }
-
-    if (config.baseUrl && !config.baseUrl.startsWith('/')) {
-        throw new Error(
-            `[simpli] Config "baseUrl" must start with "/". Got: "${config.baseUrl}"`,
-        );
-    }
-
-    // Validate theme config
-    if (config.themeConfig?.search?.provider === 'algolia') {
-        const algolia = config.themeConfig.search.algolia;
-        if (!algolia?.appId || !algolia?.apiKey || !algolia?.indexName) {
-            throw new Error(
-                `[simpli] Algolia search requires "appId", "apiKey", and "indexName".`,
-            );
+    const validationResult = configValidator.validate(userConfig);
+    
+    if (!validationResult.valid) {
+      const errors = validationResult.errors.map(e => 
+        `  - ${e.field}: ${e.message}`
+      ).join('\n');
+      
+      throw new ConfigError(
+        `Configuration validation failed:\n${errors}`,
+        { 
+          details: { 
+            configPath,
+            errors: validationResult.errors.map(e => e.message),
+            warnings: validationResult.warnings 
+          } 
         }
+      );
     }
-}
 
-/**
- * Resolve relative directory paths against project root.
- */
-function resolveConfigPaths(
-    config: SimpliConfig,
-    rootDir: string,
-): SimpliConfig {
-    return {
-        ...config,
-        docsDir: path.resolve(rootDir, config.docsDir ?? 'docs'),
-        blogDir: path.resolve(rootDir, config.blogDir ?? 'blog'),
-        pagesDir: path.resolve(rootDir, config.pagesDir ?? 'src/pages'),
-        staticDir: path.resolve(rootDir, config.staticDir ?? 'static'),
-        build: {
-            ...config.build,
-            outDir: path.resolve(rootDir, config.build?.outDir ?? 'build'),
-        },
-    };
-}
-
-function isValidUrl(str: string): boolean {
-    try {
-        new URL(str);
-        return true;
-    } catch {
-        return false;
+    if (validationResult.warnings.length > 0) {
+      console.warn('[simpli] Configuration warnings:');
+      validationResult.warnings.forEach(w => console.warn(`  - ${w}`));
     }
+
+    const mergedConfig = mergeWithDefaults(userConfig);
+    const resolvedConfig = resolveConfigPaths(mergedConfig, rootDir);
+
+    const stats = fs.statSync(configPath);
+    configCache.set(configPath, { 
+      config: resolvedConfig, 
+      mtime: stats.mtimeMs 
+    });
+
+    return resolvedConfig;
+
+  } catch (error) {
+    if (error instanceof ConfigError) {
+      throw error;
+    }
+
+    throw new ConfigError(
+      `Failed to load config from ${configPath}`,
+      { 
+        details: { configPath, rootDir },
+        cause: error instanceof Error ? error : undefined 
+      }
+    );
+  }
 }
 
-/**
- * Serialize config to a JavaScript module string for virtual module.
- * Strips non-serializable values (functions, undefined).
- */
+export function loadConfigSync(rootDir: string): SimpliConfig {
+  const configPath = discoverConfigFile(rootDir);
+
+  if (!configPath) {
+    return mergeWithDefaults({ title: 'Simpli Documentation' });
+  }
+
+  try {
+    if (configPath.endsWith('.ts') || configPath.endsWith('.mts')) {
+      throw new ConfigError(
+        'TypeScript config files require async loading. Use loadConfig() instead.',
+        { details: { configPath } }
+      );
+    }
+
+    const module = require(configPath);
+    const userConfig: SimpliUserConfig = module.default ?? module;
+
+    const validationResult = configValidator.validate(userConfig);
+    
+    if (!validationResult.valid) {
+      throw new ConfigError(
+        'Configuration validation failed',
+        { details: { errors: validationResult.errors.map(e => e.message) } }
+      );
+    }
+
+    const mergedConfig = mergeWithDefaults(userConfig);
+    return resolveConfigPaths(mergedConfig, rootDir);
+
+  } catch (error) {
+    if (error instanceof ConfigError) {
+      throw error;
+    }
+
+    throw new ConfigError(
+      `Failed to load config from ${configPath}`,
+      { cause: error instanceof Error ? error : undefined }
+    );
+  }
+}
+
+function resolveConfigPaths(config: SimpliConfig, rootDir: string): SimpliConfig {
+  return {
+    ...config,
+    docsDir: path.resolve(rootDir, config.docsDir ?? 'docs'),
+    pagesDir: path.resolve(rootDir, config.pagesDir ?? 'src/pages'),
+    staticDir: path.resolve(rootDir, config.staticDir ?? 'static'),
+    build: {
+      ...config.build,
+      outDir: path.resolve(rootDir, config.build?.outDir ?? 'dist'),
+    },
+  };
+}
+
 export function serializeConfig(config: SimpliConfig): string {
-    const serializable = JSON.parse(JSON.stringify(config));
-    return `export default ${JSON.stringify(serializable, null, 2)};`;
+  const serializable = JSON.parse(JSON.stringify(config));
+  return `export default ${JSON.stringify(serializable, null, 2)};`;
+}
+
+export function getConfigMeta(rootDir: string): {
+  exists: boolean;
+  path: string | null;
+  cached: boolean;
+} {
+  const configPath = discoverConfigFile(rootDir);
+  
+  return {
+    exists: configPath !== null,
+    path: configPath,
+    cached: configPath ? configCache.has(configPath) : false,
+  };
 }

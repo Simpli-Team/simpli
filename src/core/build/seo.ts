@@ -1,22 +1,10 @@
 // ============================================================================
 // Simpli Framework - SEO & Sitemap Generator
 // ============================================================================
-// Generates:
-//   - XML Sitemap (for search engine crawlers)
-//   - robots.txt (crawler directives)
-//   - Meta tag injection (Open Graph, Twitter Cards, JSON-LD)
-//   - Canonical URL generation
-//
-// Runs as a postBuild plugin hook.
-// ============================================================================
 
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SimpliConfig, DocMetadata, BlogPostMetadata } from '../config/types';
-
-// ---------------------------------------------------------------------------
-// Sitemap Generation
-// ---------------------------------------------------------------------------
+import type { SimpliConfig, DocMetadata } from '../config/types.js';
 
 interface SitemapEntry {
     url: string;
@@ -25,13 +13,9 @@ interface SitemapEntry {
     priority?: number;
 }
 
-/**
- * Generate sitemap.xml content from routes.
- */
 export function generateSitemap(
     config: SimpliConfig,
     docs: DocMetadata[],
-    blogPosts: BlogPostMetadata[] = [],
 ): string {
     const baseUrl = (config.url ?? 'https://localhost').replace(/\/$/, '');
     const baseUrlPath = config.baseUrl ?? '/';
@@ -54,18 +38,6 @@ export function generateSitemap(
             lastmod: doc.lastUpdate?.date,
             changefreq: 'weekly',
             priority: 0.8,
-        });
-    }
-
-    // Blog posts
-    for (const post of blogPosts) {
-        if (post.draft) continue;
-
-        entries.push({
-            url: `${baseUrl}${post.permalink}`,
-            lastmod: post.date,
-            changefreq: 'monthly',
-            priority: 0.6,
         });
     }
 
@@ -95,188 +67,6 @@ ${urlEntries}
 `;
 }
 
-// ---------------------------------------------------------------------------
-// robots.txt Generation
-// ---------------------------------------------------------------------------
-
-/**
- * Generate robots.txt content.
- */
-export function generateRobotsTxt(config: SimpliConfig): string {
-    const baseUrl = (config.url ?? 'https://localhost').replace(/\/$/, '');
-    const baseUrlPath = config.baseUrl ?? '/';
-    const noIndex = config.build?.noIndex ?? false;
-
-    if (noIndex) {
-        return `User-agent: *\nDisallow: /\n`;
-    }
-
-    return `User-agent: *
-Allow: /
-
-Sitemap: ${baseUrl}${baseUrlPath}sitemap.xml
-`;
-}
-
-// ---------------------------------------------------------------------------
-// Meta Tag Generation
-// ---------------------------------------------------------------------------
-
-export interface PageMetaTags {
-    title: string;
-    description?: string;
-    image?: string;
-    url: string;
-    type?: 'website' | 'article';
-    publishedTime?: string;
-    author?: string;
-    tags?: string[];
-    siteName?: string;
-}
-
-/**
- * Generate meta tags for a page (Open Graph, Twitter Cards, etc.).
- * Returns an array of meta tag objects for injection into <head>.
- */
-export function generateMetaTags(page: PageMetaTags): Array<{
-    name?: string;
-    property?: string;
-    content: string;
-}> {
-    const tags: Array<{ name?: string; property?: string; content: string }> = [];
-
-    // Basic meta
-    if (page.description) {
-        tags.push({ name: 'description', content: page.description });
-    }
-
-    // Open Graph
-    tags.push({ property: 'og:title', content: page.title });
-    tags.push({ property: 'og:type', content: page.type ?? 'website' });
-    tags.push({ property: 'og:url', content: page.url });
-
-    if (page.description) {
-        tags.push({ property: 'og:description', content: page.description });
-    }
-    if (page.image) {
-        tags.push({ property: 'og:image', content: page.image });
-    }
-    if (page.siteName) {
-        tags.push({ property: 'og:site_name', content: page.siteName });
-    }
-
-    // Article-specific OG
-    if (page.type === 'article') {
-        if (page.publishedTime) {
-            tags.push({
-                property: 'article:published_time',
-                content: page.publishedTime,
-            });
-        }
-        if (page.author) {
-            tags.push({ property: 'article:author', content: page.author });
-        }
-        if (page.tags) {
-            for (const tag of page.tags) {
-                tags.push({ property: 'article:tag', content: tag });
-            }
-        }
-    }
-
-    // Twitter Cards
-    tags.push({
-        name: 'twitter:card',
-        content: page.image ? 'summary_large_image' : 'summary',
-    });
-    tags.push({ name: 'twitter:title', content: page.title });
-    if (page.description) {
-        tags.push({ name: 'twitter:description', content: page.description });
-    }
-    if (page.image) {
-        tags.push({ name: 'twitter:image', content: page.image });
-    }
-
-    return tags;
-}
-
-// ---------------------------------------------------------------------------
-// JSON-LD Structured Data
-// ---------------------------------------------------------------------------
-
-/**
- * Generate JSON-LD structured data for a documentation page.
- */
-export function generateJsonLd(
-    config: SimpliConfig,
-    page: {
-        title: string;
-        description?: string;
-        url: string;
-        datePublished?: string;
-        dateModified?: string;
-        author?: string;
-    },
-): string {
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'TechArticle',
-        headline: page.title,
-        description: page.description,
-        url: page.url,
-        ...(page.datePublished && { datePublished: page.datePublished }),
-        ...(page.dateModified && { dateModified: page.dateModified }),
-        ...(page.author && {
-            author: {
-                '@type': 'Person',
-                name: page.author,
-            },
-        }),
-        publisher: {
-            '@type': 'Organization',
-            name: config.organizationName ?? config.title,
-            ...(config.favicon && {
-                logo: {
-                    '@type': 'ImageObject',
-                    url: `${config.url}${config.favicon}`,
-                },
-            }),
-        },
-        mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': page.url,
-        },
-    };
-
-    return `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`;
-}
-
-// ---------------------------------------------------------------------------
-// Post-Build Writer
-// ---------------------------------------------------------------------------
-
-/**
- * Write sitemap.xml and robots.txt to the build output directory.
- * This is called as part of the postBuild plugin hook.
- */
-export function writeSeoFiles(
-    outDir: string,
-    config: SimpliConfig,
-    docs: DocMetadata[],
-    blogPosts: BlogPostMetadata[] = [],
-): void {
-    // sitemap.xml
-    const sitemapContent = generateSitemap(config, docs, blogPosts);
-    fs.writeFileSync(path.join(outDir, 'sitemap.xml'), sitemapContent, 'utf-8');
-
-    // robots.txt
-    const robotsContent = generateRobotsTxt(config);
-    fs.writeFileSync(path.join(outDir, 'robots.txt'), robotsContent, 'utf-8');
-}
-
-// ---------------------------------------------------------------------------
-// Utilities
-// ---------------------------------------------------------------------------
-
 function escapeXml(str: string): string {
     return str
         .replace(/&/g, '&amp;')
@@ -284,4 +74,115 @@ function escapeXml(str: string): string {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&apos;');
+}
+
+export interface RobotsConfig {
+    allow?: string[];
+    disallow?: string[];
+    sitemap?: string;
+}
+
+export function generateRobotsTxt(
+    config: SimpliConfig,
+    options: RobotsConfig = {},
+): string {
+    const { allow = [], disallow = [], sitemap } = options;
+    
+    let content = 'User-agent: *\n';
+    
+    for (const path of allow) {
+        content += `Allow: ${path}\n`;
+    }
+    
+    for (const path of disallow) {
+        content += `Disallow: ${path}\n`;
+    }
+    
+    const sitemapUrl = sitemap ?? `${config.url ?? ''}${config.baseUrl ?? '/'}sitemap.xml`;
+    content += `\nSitemap: ${sitemapUrl}\n`;
+    
+    return content;
+}
+
+export interface PageMetaTags {
+    title: string;
+    description?: string;
+    image?: string;
+    url?: string;
+    type?: 'website' | 'article';
+    twitterCard?: 'summary' | 'summary_large_image';
+}
+
+export function generateMetaTags(meta: PageMetaTags): string {
+    const tags: string[] = [];
+    
+    // Basic
+    tags.push(`<title>${escapeHtml(meta.title)}</title>`);
+    if (meta.description) {
+        tags.push(`<meta name="description" content="${escapeHtml(meta.description)}">`);
+    }
+    
+    // Open Graph
+    tags.push(`<meta property="og:title" content="${escapeHtml(meta.title)}">`);
+    if (meta.description) {
+        tags.push(`<meta property="og:description" content="${escapeHtml(meta.description)}">`);
+    }
+    if (meta.url) {
+        tags.push(`<meta property="og:url" content="${escapeHtml(meta.url)}">`);
+    }
+    tags.push(`<meta property="og:type" content="${meta.type ?? 'website'}">`);
+    if (meta.image) {
+        tags.push(`<meta property="og:image" content="${escapeHtml(meta.image)}">`);
+    }
+    
+    // Twitter
+    tags.push(`<meta name="twitter:card" content="${meta.twitterCard ?? 'summary'}">`);
+    tags.push(`<meta name="twitter:title" content="${escapeHtml(meta.title)}">`);
+    if (meta.description) {
+        tags.push(`<meta name="twitter:description" content="${escapeHtml(meta.description)}">`);
+    }
+    if (meta.image) {
+        tags.push(`<meta name="twitter:image" content="${escapeHtml(meta.image)}">`);
+    }
+    
+    return tags.join('\n');
+}
+
+export interface JsonLdData {
+    '@context': string;
+    '@type': string;
+    [key: string]: unknown;
+}
+
+export function generateJsonLd(data: JsonLdData): string {
+    return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+}
+
+function escapeHtml(str: string): string {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+export interface WriteSeoOptions {
+    docs: DocMetadata[];
+    robots?: RobotsConfig;
+}
+
+export function writeSeoFiles(
+    outDir: string,
+    config: SimpliConfig,
+    options: WriteSeoOptions,
+): void {
+    const { docs, robots = {} } = options;
+    
+    // Write sitemap
+    const sitemap = generateSitemap(config, docs);
+    fs.writeFileSync(path.join(outDir, 'sitemap.xml'), sitemap);
+    
+    // Write robots.txt
+    const robotsTxt = generateRobotsTxt(config, robots);
+    fs.writeFileSync(path.join(outDir, 'robots.txt'), robotsTxt);
 }
