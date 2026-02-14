@@ -280,14 +280,115 @@ This is a built-in admonition component useful for highlighting tips!
 :::
 ```
 
-### Built-in Components
+### 🧩 Built-in Components
 
-Simpli ships with essential components for documentation:
+Simpli comes with a set of powerful, pre-styled React components that you can use directly in your MDX files.
 
-- **`<Admonition type="..."/>`**: Create callouts (note, tip, info, warning, danger).
-- **`<Tabs>`**: Organize content into tabbed views.
-- **`<CodeBlock>`**: Beautiful syntax highlighting powered by Shiki.
-- **`<Card>`**: Grid-based navigation cards.
+### 1. Admonitions (Callouts)
+
+Highlight important information with distinct styling.
+
+**Usage:**
+
+```jsx
+<Admonition type="note" title="Note">
+  This is a general note for the user.
+</Admonition>
+
+<Admonition type="tip">
+  **Pro Tip:** You can include Markdown _formatting_ in Simpli!
+</Admonition>
+
+<Admonition type="warning" title="Watch Out">
+  Be careful when modifying configuration files.
+</Admonition>
+```
+
+**Supported Types:** `note`, `tip`, `info`, `warning`, `danger`, `caution`, `success`, `important`.
+
+### 2. Tabs
+
+Organize content into switchable tabs.
+
+**Usage:**
+
+```jsx
+<Tabs defaultValue="npm">
+  <TabsList>
+    <TabsTrigger value="npm">npm</TabsTrigger>
+    <TabsTrigger value="yarn">yarn</TabsTrigger>
+    <TabsTrigger value="pnpm">pnpm</TabsTrigger>
+  </TabsList>
+  <TabsContent value="npm">
+    ```bash
+    npm install simpli-framework
+    ```
+  </TabsContent>
+  <TabsContent value="yarn">
+    ```bash
+    yarn add simpli-framework
+    ```
+  </TabsContent>
+  <TabsContent value="pnpm">
+    ```bash
+    pnpm add simpli-framework
+    ```
+  </TabsContent>
+</Tabs>
+```
+
+### 3. Cards
+
+Create grid layouts for navigation or feature highlighting.
+
+**Usage:**
+
+```jsx
+<CardGroup cols={2}>
+  <Card 
+    title="Quick Start" 
+    icon={<Rocket />} 
+    href="/docs/intro"
+    description="Get started with Simpli in under 5 minutes."
+  />
+  <Card 
+    title="Configuration" 
+    icon={<Settings />} 
+    href="/docs/config"
+    description="Learn how to customize your site."
+  />
+</CardGroup>
+```
+
+### 4. Code Blocks
+
+Enhanced code blocks with syntax highlighting, line numbers, and copy button.
+
+**Usage:**
+
+````mdx
+```typescript title="simpli.config.ts" showLineNumbers
+import { defineConfig } from 'simpli-framework';
+
+export default defineConfig({
+  title: 'My Site',
+});
+```
+````
+
+### 5. Details (Collapsible)
+
+Hide complex content behind a toggle.
+
+**Usage:**
+
+```jsx
+<details>
+  <summary>Click to view advanced options</summary>
+  
+  Here are some detailed settings that are hidden by default...
+</details>
+```
 
 ---
 
