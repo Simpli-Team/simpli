@@ -122,11 +122,14 @@ function buildCategory(
             .relative(rootDocsDir, indexFile)
             .replace(/\\/g, '/')
             .replace(/\.(mdx?|tsx?)$/, '')
-            .replace(/\/index$/, '');
+            .replace(/\/index$/, '')
+            .split('/')
+            .map(stripNumericPrefix)
+            .join('/');
 
         link = {
             type: 'doc',
-            id: relativePath || entry.name,
+            id: relativePath || stripNumericPrefix(entry.name),
         };
     }
 
@@ -162,7 +165,10 @@ function buildDocItem(
     const relativePath = path
         .relative(rootDocsDir, entry.fullPath)
         .replace(/\\/g, '/')
-        .replace(/\.(mdx?|tsx?)$/, '');
+        .replace(/\.(mdx?|tsx?)$/, '')
+        .split('/')
+        .map(stripNumericPrefix)
+        .join('/');
 
     // Strip numeric prefix from display
     const cleanName = stripNumericPrefix(fileNameWithoutExt);

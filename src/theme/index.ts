@@ -5,7 +5,8 @@ export { Footer } from './components/Footer';
 export { Sidebar } from './components/Sidebar';
 export { TOC } from './components/TOC';
 export { SearchModal } from './components/SearchModal';
-export { ThemeProvider, useTheme } from './components/ThemeProvider';
+export { ThemeProvider } from './components/ThemeProvider';
+export { useTheme } from './components/ThemeProvider/context';
 
 // Navigation components
 export { Breadcrumb } from './components/Breadcrumb';

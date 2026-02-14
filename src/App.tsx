@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { ThemeProvider } from './theme/components/ThemeProvider';
-import { HomePage } from './pages/HomePage';
+import HomePage from './pages/HomePage';
 import { DocPage } from './pages/DocPage';
 
 function App() {

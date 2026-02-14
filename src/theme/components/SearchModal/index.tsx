@@ -28,28 +28,59 @@ export function SearchModal() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('simpli-recent-searches');
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // Ignore
+      }
+    }
+    return [];
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const searchEngine = useMemo(() => new SimpliSearchEngine(), []);
 
-  // Load search index and recent searches
+  // Load search index
   useEffect(() => {
-    // Load search index
-    const data = searchIndexData as SearchDocument[];
-    if (data && Array.isArray(data)) {
-      searchEngine.load(data);
-    }
-
-    // Load recent searches from localStorage
     try {
-      const saved = localStorage.getItem('simpli-recent-searches');
-      if (saved) {
-        setRecentSearches(JSON.parse(saved));
+      const data = searchIndexData as SearchDocument[];
+      if (data && Array.isArray(data)) {
+        searchEngine.load(data);
+      } else {
+        console.warn('[SearchModal] Invalid search index data format');
       }
-    } catch {
-      // Ignore localStorage errors
+    } catch (error) {
+      console.error('[SearchModal] Failed to load search index:', error);
     }
   }, [searchEngine]);
+
+  const handleQueryChange = (newQuery: string) => {
+    setQuery(newQuery);
+    setSelectedIndex(0);
+    if (newQuery.trim()) {
+      const searchResults = searchEngine.search(newQuery, 10);
+      setResults(transformResults(searchResults));
+    } else {
+      setResults([]);
+    }
+  };
+
+  const handleOpen = useCallback(() => {
+    setIsOpen(true);
+    setSelectedIndex(0);
+    setTimeout(() => inputRef.current?.focus(), 100);
+    document.body.style.overflow = 'hidden';
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setQuery('');
+    setResults([]);
+    document.body.style.overflow = '';
+  }, []);
 
   // Save recent searches
   const saveRecentSearch = useCallback((q: string) => {
@@ -71,57 +102,33 @@ export function SearchModal() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsOpen(true);
+        handleOpen();
       }
       if (e.key === 'Escape' && isOpen) {
         e.preventDefault();
-        setIsOpen(false);
+        handleClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, handleOpen, handleClose]);
 
   // Handle search trigger button clicks
   useEffect(() => {
-    const handleSearchTrigger = () => setIsOpen(true);
+    const handleSearchTrigger = () => handleOpen();
     const searchTrigger = document.getElementById('search-trigger');
     const mobileSearch = document.getElementById('mobile-search');
-    
+
     searchTrigger?.addEventListener('click', handleSearchTrigger);
     mobileSearch?.addEventListener('click', handleSearchTrigger);
-    
+
     return () => {
       searchTrigger?.removeEventListener('click', handleSearchTrigger);
       mobileSearch?.removeEventListener('click', handleSearchTrigger);
     };
-  }, []);
+  }, [handleOpen]);
 
-  // Focus input when opened
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-      setSelectedIndex(0);
-      document.body.style.overflow = 'hidden';
-    } else {
-      setQuery('');
-      setResults([]);
-      document.body.style.overflow = '';
-    }
-  }, [isOpen]);
-
-  // Perform search
-  useEffect(() => {
-    if (query.trim()) {
-      const searchResults = searchEngine.search(query, 10);
-      setResults(transformResults(searchResults));
-      setSelectedIndex(0);
-    } else {
-      setResults([]);
-    }
-  }, [query, searchEngine]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
@@ -136,15 +143,15 @@ export function SearchModal() {
         if (results[selectedIndex]) {
           saveRecentSearch(query);
           window.location.href = results[selectedIndex].path;
-          setIsOpen(false);
+          handleClose();
         }
         break;
       case 'Escape':
         e.preventDefault();
-        setIsOpen(false);
+        handleClose();
         break;
     }
-  }, [results, selectedIndex, query, saveRecentSearch]);
+  }, [results, selectedIndex, query, saveRecentSearch, handleClose]);
 
   // Get quick links from metadata
   const quickLinks = useMemo(() => {
@@ -167,7 +174,7 @@ export function SearchModal() {
       <div
         className="absolute inset-0"
         style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(4px)' }}
-        onClick={() => setIsOpen(false)}
+        onClick={handleClose}
       />
 
       {/* Modal */}
@@ -190,14 +197,14 @@ export function SearchModal() {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={(e) => handleQueryChange(e.target.value)}
+            onKeyDown={handleInputKeyDown}
             placeholder="Search documentation..."
             className="flex-1 bg-transparent text-lg outline-none"
             style={{ color: 'var(--text)' }}
           />
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
             className="btn-ghost p-1.5 rounded-md"
             aria-label="Close search"
           >
@@ -227,7 +234,7 @@ export function SearchModal() {
                     {recentSearches.map((item, idx) => (
                       <button
                         key={idx}
-                        onClick={() => setQuery(item)}
+                        onClick={() => handleQueryChange(item)}
                         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hoverable text-left"
                       >
                         <Hash className="w-4 h-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
@@ -247,7 +254,7 @@ export function SearchModal() {
                   <a
                     key={item.id}
                     href={item.path}
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg hoverable"
                   >
                     <FileText className="w-4 h-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
@@ -268,20 +275,20 @@ export function SearchModal() {
               href={result.path}
               onClick={() => {
                 saveRecentSearch(query);
-                setIsOpen(false);
+                handleClose();
               }}
               className="flex items-start gap-3 px-4 py-3 group transition-all"
               style={{
                 background: idx === selectedIndex ? 'var(--bg-secondary)' : 'transparent',
               }}
             >
-              <FileText 
-                className="w-5 h-5 mt-0.5 shrink-0" 
-                style={{ color: idx === selectedIndex ? 'var(--accent)' : 'var(--text-muted)' }} 
+              <FileText
+                className="w-5 h-5 mt-0.5 shrink-0"
+                style={{ color: idx === selectedIndex ? 'var(--accent)' : 'var(--text-muted)' }}
               />
               <div className="flex-1 min-w-0">
-                <div 
-                  className="font-medium" 
+                <div
+                  className="font-medium"
                   style={{ color: idx === selectedIndex ? 'var(--accent)' : 'var(--text)' }}
                 >
                   {result.title}

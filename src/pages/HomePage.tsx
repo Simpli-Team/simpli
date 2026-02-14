@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { 
-  Zap, 
-  Settings, 
-  Shield, 
-  Puzzle, 
-  Search, 
+import {
+  Zap,
+  Settings,
+  Shield,
+  Puzzle,
+  Search,
   Moon,
   ArrowRight,
   Github,
@@ -15,7 +15,7 @@ import {
   Star,
   Check
 } from 'lucide-react';
-import { ThemeProvider, useTheme } from '../theme/components/ThemeProvider';
+import { useTheme } from '../theme/components/ThemeProvider/context';
 
 const features = [
   {
@@ -83,11 +83,11 @@ function HomeContent() {
 
   if (!isReady) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: 'var(--bg-primary)' }}
       >
-        <div 
+        <div
           className="animate-spin rounded-full h-12 w-12 border-b-2"
           style={{ borderColor: 'var(--accent-color)' }}
         />
@@ -96,55 +96,55 @@ function HomeContent() {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen relative overflow-hidden"
       style={{ background: 'var(--bg)' }}
     >
       {/* Background Effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div 
+        <div
           className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
           style={{ background: 'var(--accent)' }}
         />
-        <div 
+        <div
           className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
           style={{ background: 'var(--accent)' }}
         />
       </div>
 
       {/* Navbar */}
-      <header 
+      <header
         className="fixed top-0 left-0 right-0 z-50 glass"
-        style={{ 
+        style={{
           height: 'var(--navbar-height)',
           borderBottom: '1px solid var(--border)'
         }}
       >
         <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5 group">
-            <img 
-              src="/logo.svg" 
-              alt="Simpli" 
+            <img
+              src="/logo.svg"
+              alt="Simpli"
               className="h-8 w-auto transition-transform group-hover:scale-110"
             />
-            <span 
+            <span
               className="text-xl font-bold"
               style={{ color: 'var(--text)' }}
             >
               Simpli
             </span>
           </a>
-          
+
           <nav className="hidden md:flex items-center gap-8">
-            <a 
-              href="/docs" 
+            <a
+              href="/docs"
               className="text-sm font-medium transition-colors hover:text-accent"
               style={{ color: 'var(--text-secondary)' }}
             >
               Docs
             </a>
-            <a 
-              href="/blog" 
+            <a
+              href="/blog"
               className="text-sm font-medium transition-colors hover:text-accent"
               style={{ color: 'var(--text-secondary)' }}
             >
@@ -164,16 +164,16 @@ function HomeContent() {
                 <Moon className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
               )}
             </button>
-            <a 
-              href="https://github.com" 
-              target="_blank" 
+            <a
+              href="https://github.com"
+              target="_blank"
               rel="noopener noreferrer"
               className="btn-ghost p-2.5 rounded-lg hidden sm:flex"
             >
               <Github className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
             </a>
-            <a 
-              href="/docs" 
+            <a
+              href="/docs"
               className="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
             >
               Get Started
@@ -188,9 +188,9 @@ function HomeContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             {/* Badge */}
-            <div 
+            <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8 animate-fade-in"
-              style={{ 
+              style={{
                 background: 'var(--bg-secondary)',
                 border: '1px solid var(--border)',
                 color: 'var(--text-secondary)'
@@ -199,40 +199,40 @@ function HomeContent() {
               <Sparkles className="w-4 h-4" style={{ color: 'var(--accent)' }} />
               <span>Now with React 19 & TypeScript 5.9</span>
             </div>
-            
+
             {/* Heading */}
-            <h1 
+            <h1
               className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight"
               style={{ color: 'var(--text)' }}
             >
               Documentation made{' '}
-              <span 
+              <span
                 className="relative inline-block"
                 style={{ color: 'var(--accent)' }}
               >
                 simple
-                <svg 
-                  className="absolute -bottom-2 left-0 w-full" 
-                  height="8" 
+                <svg
+                  className="absolute -bottom-2 left-0 w-full"
+                  height="8"
                   viewBox="0 0 200 8"
                   style={{ opacity: 0.5 }}
                 >
-                  <path 
-                    d="M0 4 Q50 0, 100 4 T200 4" 
-                    fill="none" 
-                    stroke="currentColor" 
+                  <path
+                    d="M0 4 Q50 0, 100 4 T200 4"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
                   />
                 </svg>
               </span>
             </h1>
-            
+
             {/* Description */}
-            <p 
+            <p
               className="text-xl lg:text-2xl mb-10 leading-relaxed max-w-3xl mx-auto"
               style={{ color: 'var(--text-secondary)' }}
             >
-              A modern documentation framework built with React, TypeScript, and Tailwind CSS. 
+              A modern documentation framework built with React, TypeScript, and Tailwind CSS.
               Fast, flexible, and beautifully designed.
             </p>
 
@@ -262,7 +262,7 @@ function HomeContent() {
                 <div
                   key={idx}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm"
-                  style={{ 
+                  style={{
                     background: 'var(--bg-secondary)',
                     color: 'var(--text-secondary)'
                   }}
@@ -274,16 +274,16 @@ function HomeContent() {
             </div>
 
             {/* Code Preview */}
-            <div 
+            <div
               className="max-w-3xl mx-auto rounded-2xl overflow-hidden animate-fade-in"
-              style={{ 
+              style={{
                 boxShadow: 'var(--shadow-xl)',
                 border: '1px solid var(--border)'
               }}
             >
-              <div 
+              <div
                 className="flex items-center justify-between px-4 py-3"
-                style={{ 
+                style={{
                   background: resolvedTheme === 'dark' ? '#1e1e1e' : '#f5f5f5',
                   borderBottom: '1px solid var(--border)'
                 }}
@@ -293,7 +293,7 @@ function HomeContent() {
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />
                   <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-                <span 
+                <span
                   className="text-xs font-mono"
                   style={{ color: 'var(--text-muted)' }}
                 >
@@ -301,9 +301,9 @@ function HomeContent() {
                 </span>
                 <div className="w-16" />
               </div>
-              <div 
+              <div
                 className="p-6 text-left font-mono text-sm"
-                style={{ 
+                style={{
                   background: resolvedTheme === 'dark' ? '#1e1e1e' : '#ffffff'
                 }}
               >
@@ -326,9 +326,9 @@ function HomeContent() {
       </section>
 
       {/* Stats Section */}
-      <section 
+      <section
         className="py-16"
-        style={{ 
+        style={{
           background: 'var(--bg-secondary)',
           borderTop: '1px solid var(--border)',
           borderBottom: '1px solid var(--border)'
@@ -338,13 +338,13 @@ function HomeContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, idx) => (
               <div key={idx} className="text-center">
-                <div 
+                <div
                   className="text-4xl lg:text-5xl font-bold mb-2"
                   style={{ color: 'var(--accent)' }}
                 >
                   {stat.value}
                 </div>
-                <div 
+                <div
                   className="text-sm font-medium"
                   style={{ color: 'var(--text-secondary)' }}
                 >
@@ -360,13 +360,13 @@ function HomeContent() {
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 
+            <h2
               className="text-4xl lg:text-5xl font-bold mb-4"
               style={{ color: 'var(--text)' }}
             >
               Everything you need
             </h2>
-            <p 
+            <p
               className="text-xl max-w-2xl mx-auto"
               style={{ color: 'var(--text-secondary)' }}
             >
@@ -379,32 +379,32 @@ function HomeContent() {
               <div
                 key={idx}
                 className="group relative p-8 rounded-2xl transition-all hover:-translate-y-1"
-                style={{ 
+                style={{
                   background: 'var(--bg-secondary)',
                   border: '1px solid var(--border)'
                 }}
               >
                 {/* Gradient overlay on hover */}
-                <div 
+                <div
                   className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"
-                  style={{ 
+                  style={{
                     background: `linear-gradient(135deg, var(--accent), transparent)`
                   }}
                 />
-                
+
                 <div className="relative">
-                  <div 
+                  <div
                     className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 bg-gradient-to-br ${feature.gradient}`}
                   >
                     <feature.icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 
+                  <h3
                     className="text-xl font-semibold mb-3"
                     style={{ color: 'var(--text)' }}
                   >
                     {feature.title}
                   </h3>
-                  <p 
+                  <p
                     className="leading-relaxed"
                     style={{ color: 'var(--text-secondary)' }}
                   >
@@ -420,9 +420,9 @@ function HomeContent() {
       {/* CTA Section */}
       <section className="py-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div 
+          <div
             className="relative rounded-3xl p-12 lg:p-16 overflow-hidden"
-            style={{ 
+            style={{
               background: `linear-gradient(135deg, var(--accent), ${resolvedTheme === 'dark' ? '#7e22ce' : '#9333ea'})`,
               boxShadow: 'var(--shadow-xl)'
             }}
@@ -432,20 +432,20 @@ function HomeContent() {
               <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl" />
               <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl" />
             </div>
-            
+
             <div className="relative text-center">
               <h2 className="text-3xl lg:text-5xl font-bold text-white mb-4">
                 Ready to get started?
               </h2>
               <p className="text-lg lg:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                Create your documentation site in minutes with Simpli. 
+                Create your documentation site in minutes with Simpli.
                 Zero configuration, maximum flexibility.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a
                   href="/docs"
                   className="px-8 py-4 font-semibold rounded-xl transition-all hover:scale-105 w-full sm:w-auto flex items-center justify-center gap-2"
-                  style={{ 
+                  style={{
                     background: 'white',
                     color: 'var(--accent)',
                     boxShadow: 'var(--shadow-lg)'
@@ -459,7 +459,7 @@ function HomeContent() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-8 py-4 font-semibold rounded-xl transition-all hover:bg-white/30 w-full sm:w-auto flex items-center justify-center gap-2"
-                  style={{ 
+                  style={{
                     background: 'rgba(255,255,255,0.2)',
                     color: 'white',
                     backdropFilter: 'blur(10px)'
@@ -475,9 +475,9 @@ function HomeContent() {
       </section>
 
       {/* Footer */}
-      <footer 
+      <footer
         className="py-16"
-        style={{ 
+        style={{
           background: 'var(--bg-secondary)',
           borderTop: '1px solid var(--border)'
         }}
@@ -487,38 +487,38 @@ function HomeContent() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <img 
-                  src="/logo.svg" 
-                  alt="Simpli" 
+                <img
+                  src="/logo.svg"
+                  alt="Simpli"
                   className="h-8 w-auto"
                 />
-                <span 
+                <span
                   className="text-xl font-bold"
                   style={{ color: 'var(--text)' }}
                 >
                   Simpli
                 </span>
               </div>
-              <p 
+              <p
                 className="text-sm leading-relaxed max-w-md"
                 style={{ color: 'var(--text-secondary)' }}
               >
-                A modern documentation framework built for speed and flexibility. 
+                A modern documentation framework built for speed and flexibility.
                 Create beautiful docs in minutes with zero configuration.
               </p>
               <div className="flex items-center gap-4 mt-6">
-                <a 
-                  href="https://github.com" 
-                  target="_blank" 
+                <a
+                  href="https://github.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="transition-colors hover:text-accent"
                   style={{ color: 'var(--text-secondary)' }}
                 >
                   <Github className="w-5 h-5" />
                 </a>
-                <a 
-                  href="https://twitter.com" 
-                  target="_blank" 
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="transition-colors hover:text-accent"
                   style={{ color: 'var(--text-secondary)' }}
@@ -530,7 +530,7 @@ function HomeContent() {
 
             {/* Links */}
             <div>
-              <h4 
+              <h4
                 className="font-semibold mb-4"
                 style={{ color: 'var(--text)' }}
               >
@@ -539,8 +539,8 @@ function HomeContent() {
               <ul className="space-y-3 text-sm">
                 {['Documentation', 'Features', 'Plugins', 'Themes'].map((item) => (
                   <li key={item}>
-                    <a 
-                      href="/docs" 
+                    <a
+                      href="/docs"
                       className="transition-colors hover:text-accent"
                       style={{ color: 'var(--text-secondary)' }}
                     >
@@ -552,7 +552,7 @@ function HomeContent() {
             </div>
 
             <div>
-              <h4 
+              <h4
                 className="font-semibold mb-4"
                 style={{ color: 'var(--text)' }}
               >
@@ -561,8 +561,8 @@ function HomeContent() {
               <ul className="space-y-3 text-sm">
                 {['API Reference', 'Examples', 'Blog', 'Community'].map((item) => (
                   <li key={item}>
-                    <a 
-                      href="/docs" 
+                    <a
+                      href="/docs"
                       className="transition-colors hover:text-accent"
                       style={{ color: 'var(--text-secondary)' }}
                     >
@@ -575,9 +575,9 @@ function HomeContent() {
           </div>
 
           {/* Bottom */}
-          <div 
+          <div
             className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm"
-            style={{ 
+            style={{
               borderTop: '1px solid var(--border)',
               color: 'var(--text-muted)'
             }}
@@ -595,10 +595,6 @@ function HomeContent() {
   );
 }
 
-export function HomePage() {
-  return (
-    <ThemeProvider>
-      <HomeContent />
-    </ThemeProvider>
-  );
+export default function HomePage() {
+  return <HomeContent />;
 }

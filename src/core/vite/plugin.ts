@@ -27,7 +27,7 @@ import {
     type VirtualModuleId,
     type VirtualModuleContext,
 } from './virtualModules';
-import type { SimpliConfig, SidebarItem } from '../config/types';
+import type { SimpliConfig } from '../config/types';
 import { createMDXTransform } from './mdxTransform';
 import { loadAllContent } from '../content/ContentLoader';
 import { buildSearchData } from '../content/SearchIndex';

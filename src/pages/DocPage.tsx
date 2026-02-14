@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Navigate, useParams } from 'react-router';
 import { MDXProvider } from '@mdx-js/react';
 import { Layout } from '../theme/components/Layout';
@@ -47,18 +47,19 @@ interface DocInfo {
   position: number;
 }
 
+// Get doc metadata from virtual module
+function getDocMetadata(id: string): { title: string; description?: string } {
+  const metadata = metadataData as Record<string, { title: string; description?: string }>;
+  const pathKey = `/docs/${id}`;
+  return metadata[pathKey] || { title: id };
+}
+
 export function DocPage() {
   const params = useParams();
   const slug = params['*'] || 'intro';
-  const [Content, setContent] = useState<React.ComponentType | null>(null);
-  const [frontmatter, setFrontmatter] = useState<{ title?: string; description?: string }>({});
   const [tocHeadings, setTocHeadings] = useState<TOCHeading[]>([]);
-  const [sidebarItems, setSidebarItems] = useState<SidebarNavItem[]>([]);
-  const [docInfo, setDocInfo] = useState<DocInfo[]>([]);
-  const [notFound, setNotFound] = useState(false);
 
-  // Build sidebar items from virtual module
-  useEffect(() => {
+  const [sidebarItems] = useState<SidebarNavItem[]>(() => {
     const sidebar = sidebarData as Record<string, Array<{ type?: string; id?: string; label?: string; href?: string; items?: unknown[]; link?: { type: string; id?: string } }>>;
     const docsItems = sidebar.docs || [];
 
@@ -118,19 +119,11 @@ export function DocPage() {
       return result;
     }
 
-    const items = processItems(docsItems);
-    setSidebarItems(items);
-  }, []);
-
-  // Get doc metadata from virtual module
-  function getDocMetadata(id: string): { title: string; description?: string } {
-    const metadata = metadataData as Record<string, { title: string; description?: string }>;
-    const pathKey = `/docs/${id}`;
-    return metadata[pathKey] || { title: id };
-  }
+    return processItems(docsItems);
+  });
 
   // Generate doc list from modules
-  useEffect(() => {
+  const [docInfo] = useState<DocInfo[]>(() => {
     const docs: DocInfo[] = [];
 
     for (const [path, moduleItem] of Object.entries(docModules)) {
@@ -141,10 +134,16 @@ export function DocPage() {
       const category = segments.length > 1 ? segments[0] : null;
       const fm = mod.frontmatter || {};
 
+      // Clean path to match routing logic (remove numeric prefixes)
+      const cleanPath = relativePath.split('/').map(segment => {
+        const match = segment.match(/^\d+-(.+)$/);
+        return match ? match[1] : segment;
+      }).join('/');
+
       docs.push({
-        id: relativePath,
-        title: (fm.title as string) || fileName.replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase()),
-        path: relativePath,
+        id: cleanPath,
+        title: (fm.title as string) || fileName.replace(/^\d+-/, '').replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase()),
+        path: cleanPath,
         category,
         position: (fm.sidebar_position as number) ?? 999,
       });
@@ -160,39 +159,63 @@ export function DocPage() {
       return a.position - b.position || a.title.localeCompare(b.title);
     });
 
-    setDocInfo(docs);
-  }, []);
+    return docs;
+  });
 
-  // Load current doc
-  useEffect(() => {
-    const docPath = `/docs/${slug}.mdx`;
-    const module = docModules[docPath];
+  // Resolve current module path
+  const currentModulePath = useMemo(() => {
+    return Object.keys(docModules).find(path => {
+      const pathWithoutExt = path.replace(/\.mdx$/, '');
+      const relativePath = pathWithoutExt.replace(/^\/docs\//, '');
 
-    if (module) {
-      setContent(() => module.default);
-      setFrontmatter({
-        title: module.frontmatter?.title as string,
-        description: module.frontmatter?.description as string,
-      });
-      setNotFound(false);
+      const cleanSlug = relativePath.split('/').map(segment => {
+        const match = segment.match(/^\d+-(.+)$/);
+        return match ? match[1] : segment;
+      }).join('/');
 
-      // Extract headings from the rendered content
-      requestAnimationFrame(() => {
-        const article = document.querySelector('.simpli-content');
-        if (article) {
-          const headingEls = article.querySelectorAll('h2, h3');
-          const headings: TOCHeading[] = Array.from(headingEls).map(el => ({
-            id: el.id || el.textContent?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') || '',
-            text: el.textContent || '',
-            level: el.tagName === 'H2' ? 2 : 3,
-          }));
-          setTocHeadings(headings);
-        }
-      });
-    } else {
-      setNotFound(true);
-    }
+      return cleanSlug === slug;
+    });
   }, [slug]);
+
+  // Derived state for content and metadata
+  const activeDoc = useMemo(() => {
+    if (!currentModulePath) return null;
+    const module = docModules[currentModulePath];
+    return {
+      Content: module.default,
+      frontmatter: {
+        title: (module.frontmatter?.title as string) || '',
+        description: (module.frontmatter?.description as string) || '',
+      }
+    };
+  }, [currentModulePath]);
+
+
+
+  // Use derived values directly
+  const Content = activeDoc?.Content || null;
+  const frontmatter = activeDoc?.frontmatter || { title: '', description: '' };
+  const notFound = !currentModulePath;
+
+  // Extract headings (after content render)
+  useEffect(() => {
+    if (!Content) return;
+
+    // Slight delay to allow MDX to render
+    const timer = setTimeout(() => {
+      const article = document.querySelector('.simpli-content');
+      if (article) {
+        const headingEls = article.querySelectorAll('h2, h3');
+        const headings: TOCHeading[] = Array.from(headingEls).map(el => ({
+          id: el.id || el.textContent?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') || '',
+          text: el.textContent || '',
+          level: el.tagName === 'H2' ? 2 : 3,
+        }));
+        setTocHeadings(headings);
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [Content, slug]);
 
   // Generate breadcrumbs from slug path segments
   const generateBreadcrumbs = () => {
@@ -238,6 +261,18 @@ export function DocPage() {
   const next = currentIndex < docInfo.length - 1 && currentIndex !== -1 ? docInfo[currentIndex + 1] : undefined;
 
   if (notFound) {
+    if (slug === 'intro') {
+      return (
+        <Layout showSidebar={true} showTOC={false} sidebarItems={sidebarItems}>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+            <h1 className="text-4xl font-bold mb-4">Documentation Not Found</h1>
+            <p className="text-xl text-gray-500 mb-8">
+              Could not load the introduction page. Please check your docs directory.
+            </p>
+          </div>
+        </Layout>
+      );
+    }
     return <Navigate to="/docs/intro" replace />;
   }
 

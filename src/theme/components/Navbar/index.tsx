@@ -1,17 +1,19 @@
 import { Menu, Search, Sun, Moon, Monitor, Github } from 'lucide-react';
-import { useTheme } from '../ThemeProvider';
+import { useTheme } from '../ThemeProvider/context';
 import { useState, useEffect } from 'react';
 import configData from 'virtual:simpli/config';
 
 export interface NavbarProps {
   onMenuToggle: () => void;
-  isMenuOpen: boolean;
+  isMenuOpen?: boolean;
 }
 
 export function Navbar({ onMenuToggle }: NavbarProps) {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
-  const [navbarConfig, setNavbarConfig] = useState<{
+
+
+  const [navbarConfig] = useState<{
     title?: string;
     logo?: { src?: string; alt?: string };
     items?: Array<{
@@ -21,13 +23,22 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
       type?: string;
       position?: 'left' | 'right';
     }>;
-  }>({});
+  }>(() => {
+    const config = configData as { themeConfig?: { navbar?: Record<string, unknown> } };
+    return (config.themeConfig?.navbar || {}) as {
+      title?: string;
+      logo?: { src?: string; alt?: string };
+      items?: Array<{
+        label?: string;
+        to?: string;
+        href?: string;
+        type?: string;
+        position?: 'left' | 'right';
+      }>;
+    };
+  });
 
-  // Load config from virtual module
-  useEffect(() => {
-    const config = configData as { themeConfig?: { navbar?: typeof navbarConfig } };
-    setNavbarConfig(config.themeConfig?.navbar || {});
-  }, []);
+
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -41,10 +52,10 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
   const siteTitle = navbarConfig.title || 'Simpli';
 
   // Filter navbar items
-  const leftItems = navbarConfig.items?.filter(item => 
+  const leftItems = navbarConfig.items?.filter(item =>
     !item.position || item.position === 'left'
   ) || [];
-  const rightItems = navbarConfig.items?.filter(item => 
+  const rightItems = navbarConfig.items?.filter(item =>
     item.position === 'right'
   ) || [];
 
@@ -70,7 +81,7 @@ export function Navbar({ onMenuToggle }: NavbarProps) {
           </button>
 
           <a href="/" className="flex items-center gap-2.5 group">
-            <img 
+            <img
               src={logoSrc}
               alt={logoAlt}
               className="w-8 h-8 transition-transform group-hover:scale-105"

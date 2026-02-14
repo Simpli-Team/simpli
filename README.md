@@ -1,122 +1,320 @@
 # 🚀 Simpli Framework
 
-[![Version](https://img.shields.io/npm/v/simpli-framework)](https://www.npmjs.com/package/simpli-framework)
-[![License](https://img.shields.io/npm/l/simpli-framework)](LICENSE)
+<div align="center">
+  <img src="public/simpli-logo.png" alt="Simpli Logo" width="200" />
+  <br />
+</div>
 
-A lightweight, blazing-fast documentation framework built with **React 19**, **TypeScript 5.9**, **Tailwind CSS 4**, and **Vite 7**.
+[![Version](https://img.shields.io/npm/v/simpli-framework?style=flat-square&color=blue)](https://www.npmjs.com/package/simpli-framework)
+[![License](https://img.shields.io/npm/l/simpli-framework?style=flat-square&color=green)](LICENSE)
+[![Unpacked Size](https://img.shields.io/npm/unpacked-size/simpli-framework?style=flat-square&color=orange)](https://www.npmjs.com/package/simpli-framework)
+
+> **The Next-Generation Documentation Framework.**
+> Built for speed, designed for beauty. Powered by **React 19**, **Vite 7**, and **Tailwind CSS 4**.
+
+Simpli is a lightweight, blazing-fast documentation framework that lets you focus on writing content while we handle the rest. With a zero-config philosophy and a powerful plugin system, it's perfect for personal blogs, technical documentation, and product manuals.
 
 ## ✨ Features
 
-- ⚡ **Ultra-Fast**: Cold start under 100ms, HMR under 10ms
-- 🎯 **Zero Config**: Convention over configuration
-- 🔒 **Type-Safe**: Full TypeScript support with complete inference
-- 🎨 **Modern Stack**: React 19 + React Compiler, Tailwind CSS 4
-- 🔌 **Plugin System**: Extensible hook-based architecture
-- 🔍 **Built-in Search**: Full-text search with FlexSearch
-- 📱 **Responsive**: Mobile-first design
-- 🌙 **Dark Mode**: Automatic dark mode support
+- **⚡ Lightning Fast**: Powered by **Vite 7**, featuring instant server start (<100ms) and lightning-fast HMR (<10ms).
+- **🎨 Modern Styling**: Built with **Tailwind CSS v4** for a utility-first, fully customizable design system.
+- **⚛️ React 19 Core**: Leverage the latest React features, including the new React Compiler for automatic optimization.
+- **📝 MDX Powered**: Write content in Markdown mixed with React components. Interactive documentation made easy.
+- **🔍 Type-Safe Config**: Full TypeScript support with `defineConfig` for excellent DX and autocomplete.
+- **🌍 Advanced Typography**: First-class support for various font families including **Thai fonts** (`Prompt`, `Sarabun`, `Kanit`) and Google Fonts.
+- **📱 Mobile First**: Responsive glassmorphism design that looks stunning on any device.
+- **🔦 Built-in Search**: Integrated local search or Algolia DocSearch support.
+- **🌙 Dark Mode**: Automatic theme switching with system preference respect.
+
+---
 
 ## 🚀 Quick Start
 
-### Create a new site
+### Create a New Site
+
+The easiest way to start is using the scaffold command:
 
 ```bash
+# Initialize a new project
 npm create simpli@latest my-docs
+
+# Navigate to directory
 cd my-docs
+
+# Start development server
 npm run dev
 ```
 
 ### Manual Installation
 
+If you prefer to set it up manually:
+
 ```bash
-npm install simpli-framework
+npm install simpli-framework react react-dom react-router-dom
 ```
+
+---
 
 ## 📁 Project Structure
 
-```
+A typical Simpli project looks like this:
+
+```bash
 my-docs/
-├── docs/                 # Documentation files (.mdx)
-├── blog/                 # Blog posts (optional)
+├── blog/                  # Blog posts (optional)
+│   └── welcome.mdx
+├── docs/                  # Documentation files
+│   ├── intro.mdx
+│   └── api/
+│       └── reference.mdx
 ├── src/
-│   └── pages/            # Custom pages
-├── simpli.config.ts      # Site configuration
+│   └── pages/             # Custom React pages
+│       └── index.tsx
+├── simpli.config.ts       # Main configuration file
 ├── package.json
 └── vite.config.ts
 ```
 
+---
+
 ## ⚙️ Configuration
+
+Simpli is highly configurable via `simpli.config.ts`. Here represents a comprehensive configuration example:
 
 ```typescript
 import { defineConfig } from 'simpli-framework';
 
 export default defineConfig({
-  title: 'My Documentation',
+  title: 'Simpli Docs',
   tagline: 'Documentation made simple',
-  url: 'https://mydocs.dev',
+  url: 'https://simpli.js.org',
+  baseUrl: '/',
   
+  // Custom Font Configuration
   themeConfig: {
+    font: {
+      // Options: 'inter', 'prompt', 'sarabun', 'kanit', 'noto-sans-thai'
+      family: 'prompt', 
+      weights: [300, 400, 500, 600, 700],
+      thaiOptimized: true,
+    },
+    
+    // Color Mode (Dark/Light)
+    colorMode: {
+      defaultMode: 'light',
+      respectPrefersColorScheme: true,
+    },
+
+    // Navigation Bar
     navbar: {
-      title: 'My Docs',
+      title: 'Simpli',
+      logo: {
+        src: '/img/logo.svg',
+        alt: 'Simpli Logo',
+      },
       items: [
-        { label: 'Docs', to: '/docs' },
-        { label: 'Blog', to: '/blog' },
+        { label: 'Docs', to: '/docs', position: 'left' },
+        { label: 'Blog', to: '/blog', position: 'left' },
+        { type: 'search', position: 'right' },
+        { type: 'themeToggle', position: 'right' },
       ],
     },
-    sidebar: {
-      hideable: true,
-    },
+
+    // Footer
     footer: {
       style: 'dark',
+      copyright: `Copyright © ${new Date().getFullYear()} Simpli Framework.`,
+      links: [
+        {
+          title: 'Docs',
+          items: [{ label: 'Getting Started', to: '/docs/intro' }],
+        },
+        {
+          title: 'Community',
+          items: [{ label: 'GitHub', href: 'https://github.com/simpli' }],
+        },
+      ],
     },
+    
+    // Search Configuration
     search: {
       enabled: true,
+      provider: 'local', // or 'algolia'
+      local: {
+        highlightSearchTerms: true,
+      },
+    },
+  },
+  
+  // Documentation Settings
+  markdown: {
+    mermaid: true, // Enable Mermaid diagrams
+    math: true,    // Enable LaTex math
+  },
+});
+```
+
+---
+
+## 🎨 Customizing Logo & Branding
+
+Simpli makes it easy to add your brand identity. You can configure the logo, favicon, and even provide different logos for light and dark modes.
+
+### 1. Preparing Your Assets
+
+Place your image files in the `public/` folder. This ensures they are accessible from the root URL.
+
+```
+my-docs/
+├── public/
+│   ├── logo.svg        # Main logo
+│   ├── logo-dark.svg   # Dark mode logo (optional)
+│   └── favicon.ico     # Browser tab icon
+```
+
+### 2. Configuring `simpli.config.ts`
+
+Update your configuration file to reference these assets:
+
+```typescript
+export default defineConfig({
+  // ...
+  favicon: '/favicon.ico', // Path relative to public folder
+
+  themeConfig: {
+    navbar: {
+      title: 'My Project',
+      logo: {
+        alt: 'My Project Logo',
+        src: '/logo.svg',       // Default logo (Light mode)
+        srcDark: '/logo-dark.svg', // Optional: Different logo for Dark mode
+        width: 32,              // Optional: Force width
+        height: 32,             // Optional: Force height
+      },
+      // ...
+    },
+    footer: {
+      logo: {
+        alt: 'Footer Logo',
+        src: '/logo.svg',
+        width: 100,
+      },
+      // ...
     },
   },
 });
 ```
 
+---
+
+## 🖼️ Using Images in Content
+
+You can use images in your Markdown/MDX files in two ways:
+
+### Method 1: Absolute Path (Recommended)
+Use images stored in the `public/` folder. Reference them starting with `/`.
+
+```markdown
+![My Image](/my-image.png)
+```
+
+### Method 2: Relative Path (Co-location)
+Place images directly next to your `.mdx` files. This is great for keeping content organized.
+
+```
+docs/
+├── intro.mdx
+└── assets/
+    └── schematic.png
+```
+
+In `intro.mdx`:
+
+```markdown
+![Schematic](./assets/schematic.png)
+```
+
+### Method 3: Using React Components
+Since MDX supports React, you can use standard `<img>` tags for more control (styling, sizing).
+
+```jsx
+<img 
+  src="/screenshot.png" 
+  alt="App Screenshot" 
+  style={{ borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} 
+/>
+```
+
+---
+
 ## 📝 Writing Content
 
-Create MDX files in the `docs` folder:
+Simpli uses **MDX**, which allows you to use React components directly within your Markdown files.
+
+### Frontmatter
+
+Each `.mdx` file can include frontmatter to define metadata:
 
 ```mdx
 ---
 title: Getting Started
-description: Learn how to use Simpli
+description: Learn how to install and use Simpli
+sidebar_position: 1
+tags: [guide, setup]
 ---
 
 # Getting Started
 
-Welcome to Simpli!
+Welcome to **Simpli**! This is a paragraph in Markdown.
 
-:::tip[Pro Tip]
-Use MDX for interactive documentation!
+## Using Components
+
+You can import and use React components:
+
+import { Badge } from '../components/Badge';
+
+<Badge color="success">v1.0.0</Badge>
+
+:::tip
+This is a built-in admonition component useful for highlighting tips!
 :::
 ```
 
-## 🧩 Built-in Components
+### Built-in Components
 
-- `<Admonition>` - Note, tip, warning, danger boxes
-- `<Tabs>` - Tabbed content
-- `<CodeBlock>` - Syntax highlighted code
-- `<Card>` - Link cards
-- `<Details>` - Collapsible content
+Simpli ships with essential components for documentation:
 
-## 🛠️ CLI Commands
-
-| Command | Description |
-|---------|-------------|
-| `simpli create <name>` | Create new project |
-| `simpli dev` | Start dev server |
-| `simpli build` | Build for production |
-| `simpli serve` | Preview production build |
-| `simpli clear` | Clear cache |
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
+- **`<Admonition type="..."/>`**: Create callouts (note, tip, info, warning, danger).
+- **`<Tabs>`**: Organize content into tabbed views.
+- **`<CodeBlock>`**: Beautiful syntax highlighting powered by Shiki.
+- **`<Card>`**: Grid-based navigation cards.
 
 ---
 
-Built with ❤️ using Simpli Framework
+## 🛠️ CLI Reference
+
+The `simpli` CLI tool helps you manage your project.
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `create` | Scaffolds a new Simpli project | `npx simpli create <name>` |
+| `dev` | Starts the development server | `npx simpli dev` |
+| `build` | Builds the site for production | `npx simpli build` |
+| `serve` | Serves the production build locally | `npx simpli serve` |
+| `clear` | Clears local cache and build artifacts | `npx simpli clear` |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  Built with ❤️ by the Simpli Team
+</p>
