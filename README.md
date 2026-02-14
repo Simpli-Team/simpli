@@ -1,13 +1,10 @@
-# 🚀 Simpli Framework
-
 <div align="center">
   <img src="public/simpli-logo.png" alt="Simpli Logo" width="200" />
   <br />
 </div>
 
-[![Version](https://img.shields.io/npm/v/simpli-framework?style=flat-square&color=blue)](https://www.npmjs.com/package/simpli-framework)
-[![License](https://img.shields.io/npm/l/simpli-framework?style=flat-square&color=green)](LICENSE)
-[![Unpacked Size](https://img.shields.io/npm/unpacked-size/simpli-framework?style=flat-square&color=orange)](https://www.npmjs.com/package/simpli-framework)
+# 🚀 Simpli Framework
+
 
 > **The Next-Generation Documentation Framework.**
 > Built for speed, designed for beauty. Powered by **React 19**, **Vite 7**, and **Tailwind CSS 4**.
